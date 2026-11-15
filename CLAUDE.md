@@ -37,6 +37,46 @@ npm run build     # tsc --noEmit && vite build
 
 No test runner (pytest / vitest) or linter is configured yet, even though test files exist as placeholders (`apps/api/src/tests/`, `apps/web/src/tests/`). `.github/workflows/ci.yml` is empty.
 
+## File structure
+
+```
+TxnWeave-Repo/
+├── compose.yaml                 # api + web services, ports bound to 127.0.0.1
+├── .github/workflows/ci.yml     # CI (empty)
+├── data/examples/sample-graph.json
+├── docs/
+│   ├── architecture/overview.md
+│   └── development/             # local-setup.md, vpn-connection.md
+└── apps/
+    ├── api/                     # FastAPI backend (Python ≥3.12)
+    │   ├── Dockerfile
+    │   ├── pyproject.toml
+    │   └── src/
+    │       ├── txnweave_api/
+    │       │   ├── main.py      # FastAPI app + /api/hello
+    │       │   ├── config.py    # settings
+    │       │   ├── routes/      # graphs.py — HTTP endpoints
+    │       │   ├── services/    # graph_service.py — graph logic
+    │       │   ├── schemas/     # graph.py — Pydantic models
+    │       │   └── db/          # database.py, models.py
+    │       └── tests/           # conftest.py, test_graphs.py, test_graph_service.py
+    └── web/                     # React 19 + Vite + TypeScript frontend
+        ├── Dockerfile
+        ├── index.html
+        ├── package.json
+        ├── tsconfig.json
+        ├── vite.config.ts       # /api proxy → http://api:8000
+        └── src/
+            ├── main.tsx, App.tsx
+            ├── api/graphApi.ts  # backend fetch calls
+            ├── pages/           # HomePage, GraphPage
+            ├── components/      # GraphCanvas, GraphToolbar, NodeEditor, EdgeEditor, PropertyPanel
+            ├── graph/           # cytoscapeConfig.ts, graphMapper.ts
+            ├── types/graph.ts
+            ├── styles/global.css
+            └── tests/           # GraphCanvas.test.tsx, graphMapper.test.tsx
+```
+
 ## Architecture
 
 - **apps/api** — FastAPI app in `src/txnweave_api/main.py`. Planned layering (currently empty files): `routes/` (HTTP endpoints) → `services/` (graph logic) → `db/` (database + models), with Pydantic `schemas/` and `config.py`. All endpoints are prefixed `/api`.
@@ -46,5 +86,4 @@ No test runner (pytest / vitest) or linter is configured yet, even though test f
 
 ## Gotchas
 
-- The web TypeScript config is named `apps/web/tpconfig.json` rather than `tsconfig.json`, so `tsc` won't pick it up. This is likely why `npm run build` fails.
 - Compose binds ports to `127.0.0.1` only. Remote access to the author's hosted instance goes through a VPN (`docs/development/vpn-connection.md`, not yet written).
