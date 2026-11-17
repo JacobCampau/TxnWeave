@@ -8,6 +8,6 @@ This project was created to accomplish two goals. The first was to help my team 
 Overall, my impression of AI use in a project was a mixed one. I have spent the previous four plus years having to spend a majority of my time coding and debugging complex issues. But now I spend most of the time planning the project and reviewing code. It excites me to imagine what cool things can be built at the speed AI allows, but I am concerned of becoming overly reliant on the tool. 
 
 ## How to run TxnWeave
-There are two ways to run this tool. One through a direct connection to my home server and another through running the docker images yourself. In order to use a direct connection to my running instance of the tool, you must first obtain an approved VPN connection to my server from me and then follow the directions in [vpn-connection](/docs/development/vpn-connection.md). In order to run your own local deployment of the tool, follow the directions in [local-setup](/docs/development/local-setup.md).
+There are two ways to run this tool. One through a direct connection to my home server and another through running the docker images yourself. In order to use a direct connection to my running instance of the tool, you must first obtain an approved VPN connection to my server from me and then follow the directions in [vpn-connection](/docs/setup/vpn-connection.md). In order to run your own local deployment of the tool, follow the directions in [local-setup](/docs/setup/local-setup.md).
 
 ## How to use TxnWeave
