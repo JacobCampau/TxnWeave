@@ -6,7 +6,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 TxnWeave is a graphing web app for retail security agents to visualize suspicious activity and long-running fraud cases (built with gift card fraud in mind). Users enter store/transaction data and see it rendered as a graph to spot patterns.
 
-The repo is at an early "hello world" stage: most files under `apps/` and `docs/` exist as empty placeholders that sketch the intended architecture. Only the API's `/api/hello` endpoint and the web app's call to it are implemented.
+The repo is at an early "hello world" stage: most files under `apps/` exist as empty placeholders. Only the API's `/api/hello` endpoint and the web app's call to it are implemented. The full design is agreed and lives in `docs/development/claudedesigns/` (see below). Where the placeholder files differ from the design, the design wins.
+
+It is also a CS 420 (HCI) course project. Course requirements come from `docs/development/CS420_Project_Discovery and Specification.pdf` (FR-01 to FR-27, UC01 to UC10). `CS420_Project_Concept.pdf` has not been folded in yet, because its pages render blank (follow-up F19).
+
+## Design documents
+
+Start with `docs/development/claudedesigns/master-plan.md`. It holds the purpose, goals, cross-cutting decisions, glossary, tech stack, conventions and an index of every feature doc. Then load only the feature docs the task needs:
+
+- `backend/`: data-model, persistence, api, relationship-resolution, graph-output, csv-save-load, build-plan
+- `ui/`: color-system, app-shell, investigation-page, documents-page, settings-page, build-plan
+- `project/`: context (problem, persona, quality goals, risks), requirements (FR/UC coverage), traceability (design element → FR/UC map)
+- `design-history.md`: changelogs and follow-ups F1 to F19 (some still open)
+
+Rules that apply when using or editing them:
+
+- **Build in waves (P1).** Wave 1 fully implements every Level 1 requirement (FR-01 to FR-12). Wave 2 at least starts every Level 2 requirement (FR-13 to FR-21). Everything else is Future, after the assignment is submitted. Every step in `backend/build-plan.md` and `ui/build-plan.md` is tagged with its wave. Follow that order.
+- **Traceability (P2).** Every design element cites at least one FR or UC ID. New design work must be added to `project/traceability.md`. Don't invent FRs.
+- **Decision IDs are stable.** These include G, P, B, BD, D, R, UI-n, F, FR and UC. Each decision is written in full in exactly one doc and cited by ID elsewhere.
+- **Keep each design `.md` at or under 250 lines.** Split a doc rather than exceed the limit.
+- **Leave the two historical docs unchanged.** `backend-graphing-design.md` and `page-and-ui-layout.md` are superseded but kept on purpose as a record. Don't edit or split them, and don't build from them.
+- **Use the project's terms:** "Investigation page", "Documents page", "Investigation settings page", "incomplete node", "document".
+- **Design changes go through the `project-designer` agent.** It does not write application code.
 
 ## Working style
 
@@ -46,7 +67,8 @@ TxnWeave-Repo/
 ├── data/examples/sample-graph.json
 ├── docs/
 │   ├── architecture/overview.md
-│   └── development/             # local-setup.md, vpn-connection.md
+│   └── development/             # local-setup.md, vpn-connection.md, initial-plans.md, CS420 PDFs
+│       └── claudedesigns/       # agreed design: master-plan.md, backend/, ui/, project/, design-history.md
 └── apps/
     ├── api/                     # FastAPI backend (Python ≥3.12)
     │   ├── Dockerfile
@@ -78,6 +100,8 @@ TxnWeave-Repo/
 ```
 
 ## Architecture
+
+The tree above shows the placeholder files as they exist today. The design replaces some of them: the pages become `InvestigationPage` (`/`), `DocumentsPage` (`/documents`) and the Investigation settings page (`/settings`), and users never draw nodes or edges by hand. The backend works out every relationship and returns Cytoscape elements from `GET /graph`. The file maps are in `backend/build-plan.md` and `ui/build-plan.md`.
 
 - **apps/api** — FastAPI app in `src/txnweave_api/main.py`. Planned layering (currently empty files): `routes/` (HTTP endpoints) → `services/` (graph logic) → `db/` (database + models), with Pydantic `schemas/` and `config.py`. All endpoints are prefixed `/api`.
 - **apps/web** — React SPA. `src/api/graphApi.ts` holds fetch calls to the backend using relative `/api/...` URLs. Planned pieces: `pages/` (HomePage, GraphPage), `components/` (graph canvas, toolbar, node/edge editors, property panel), and `src/graph/` (`cytoscapeConfig.ts`, `graphMapper.ts`), which suggests Cytoscape.js for rendering (not yet a dependency).
