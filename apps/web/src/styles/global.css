@@ -1,0 +1,161 @@
+/* Palette tokens (D19). Mirrors src/styles/palette.ts. */
+:root {
+    --color-ink: #131313;
+    --color-slate: #394249;
+    --color-mist: #D2CDCB;
+    --color-rose: #D26D6F;
+    --color-crimson: #C11E20;
+    --text-on-dark: #FFFFFF;
+    --text-on-light: #000000;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    min-width: 1280px; /* D21: desktop only; narrower windows scroll horizontally (UI-20) */
+    font-family: system-ui, sans-serif;
+    background: var(--color-mist);
+    color: var(--text-on-light);
+}
+
+::selection {
+    background: var(--color-crimson);
+    color: var(--text-on-dark);
+}
+
+/* App shell: top bar, page, footer stacked vertically */
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.app-main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+/* Top bar (D6): ink background, white text */
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 16px;
+    height: 56px;
+    background: var(--color-ink);
+    color: var(--text-on-dark);
+}
+
+.top-bar__wordmark {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.top-bar__tabs {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+}
+
+.top-bar__tab {
+    display: flex;
+    align-items: center;
+    color: var(--text-on-dark);
+    text-decoration: none;
+    font-weight: 400;
+    border-bottom: 3px solid transparent;
+}
+
+/* Active tab: 3px crimson underline and bold text */
+.top-bar__tab.active {
+    font-weight: 700;
+    border-bottom-color: var(--color-crimson);
+}
+
+.top-bar__name {
+    margin-left: auto;
+}
+
+.top-bar__actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Buttons */
+.button {
+    padding: 6px 14px;
+    font: inherit;
+    border: none;
+    cursor: pointer;
+}
+
+.button--primary {
+    background: var(--color-crimson);
+    color: var(--text-on-dark);
+}
+
+.button--secondary-on-dark {
+    background: var(--color-mist);
+    color: var(--text-on-light);
+}
+
+/* Focus rings: ink on light backgrounds, mist on dark ones */
+:focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 2px;
+}
+
+.top-bar :focus-visible,
+.app-footer :focus-visible,
+.documents-list :focus-visible {
+    outline-color: var(--color-mist);
+}
+
+/* Footer (not in the design docs; added during the UI mock-up) */
+.app-footer {
+    padding: 8px 16px;
+    background: var(--color-ink);
+    color: var(--text-on-dark);
+    font-size: 14px;
+}
+
+/* Investigation page: mist graph canvas (D20) */
+.investigation-canvas {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-mist);
+}
+
+/* Empty state: black italic 20px (D23) */
+.empty-state {
+    font-size: 20px;
+    font-style: italic;
+    color: var(--text-on-light);
+}
+
+/* Documents page: slate list pane + mist form pane */
+.documents-list {
+    width: 360px;
+    padding: 16px;
+    background: var(--color-slate);
+    color: var(--text-on-dark);
+}
+
+.documents-form {
+    flex: 1;
+    padding: 16px;
+    background: var(--color-mist);
+    color: var(--text-on-light);
+}
