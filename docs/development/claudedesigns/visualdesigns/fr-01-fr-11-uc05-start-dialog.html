@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Start</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:var(--text-on-light);background:var(--color-mist);scrollbar-color:var(--color-slate) var(--color-ink)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+button,input{font:inherit}
+.app{display:flex;flex-direction:column;height:100vh;min-width:1280px}
+.topbar{flex:none;display:flex;align-items:center;gap:20px;height:56px;padding:0 20px;background:var(--color-ink);color:var(--text-on-dark)}
+.wordmark{font-size:20px;font-weight:700;letter-spacing:.02em;margin-right:8px}
+.tabs{display:flex;align-self:stretch}
+.tabs a{display:flex;align-items:center;padding:3px 16px 0;border-bottom:3px solid var(--color-ink);color:var(--text-on-dark);text-decoration:none}
+.tabs a[aria-current="page"]{font-weight:700;border-bottom-color:var(--color-crimson)}
+.blank{flex:1;background:var(--color-mist)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;border:0;border-radius:4px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--color-crimson);color:var(--text-on-dark)}
+.btn-secondary{background:var(--color-slate);color:var(--text-on-dark)}
+.ring-light{outline:3px solid var(--color-ink);outline-offset:2px}
+:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.backdrop{position:fixed;inset:0;background:var(--color-ink);opacity:.7}
+.dialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:560px;background:var(--color-mist);border:1px solid var(--color-ink);border-radius:6px;padding:28px 32px 32px}
+.dialog h2{margin:0;font-size:22px}
+.lead{margin:6px 0 20px}
+.option{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;border-top:1px solid var(--color-slate)}
+.option h3{margin:0 0 4px;font-size:16px}
+.option p{margin:0}
+.grow{flex:1}
+.option label{display:block;font-weight:600;margin:6px 0 4px}
+.input{width:100%;padding:8px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.input::placeholder{color:var(--text-on-light);opacity:1;font-style:italic}
+.option-new{align-items:flex-end}
+.meta{font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <span class="wordmark">TxnWeave</span>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#" aria-current="page">Investigation</a>
+      <a href="#">Documents</a>
+      <a href="#">Settings</a>
+    </nav>
+  </header>
+  <main class="blank"></main>
+</div>
+<div class="backdrop"></div>
+<section class="dialog" role="dialog" aria-modal="true" aria-labelledby="start-title">
+  <h2 id="start-title">Open an investigation</h2>
+  <p class="lead">Pick up where you left off, start a new case, or load a TxnWeave save file.</p>
+  <div class="option">
+    <div>
+      <h3>Resume last session</h3>
+      <p>Riverside gift card ring</p>
+      <p class="meta">Last saved 11-19-2026 at 17:48 · 9 documents, 2 incomplete nodes</p>
+    </div>
+    <button class="btn btn-primary ring-light">Resume</button>
+  </div>
+  <form class="option option-new">
+    <div class="grow">
+      <h3>New investigation</h3>
+      <label for="new-name">Name (optional)</label>
+      <input id="new-name" class="input" type="text" maxlength="200" placeholder="Untitled investigation">
+    </div>
+    <button class="btn btn-secondary" type="button">Create investigation</button>
+  </form>
+  <div class="option">
+    <div>
+      <h3>Load CSV</h3>
+      <p>Open a TxnWeave CSV save file from your computer.</p>
+    </div>
+    <button class="btn btn-secondary">Load CSV…</button>
+  </div>
+</section>
+</body>
+</html>

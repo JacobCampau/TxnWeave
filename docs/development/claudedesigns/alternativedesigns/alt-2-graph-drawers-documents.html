@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Documents</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:var(--text-on-light);background:var(--color-mist);scrollbar-color:var(--color-slate) var(--color-ink)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+button,input,select,textarea{font:inherit}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;min-width:1280px}
+.topbar{flex:none;display:flex;align-items:center;gap:16px;height:52px;padding:0 16px 0 20px;background:var(--color-ink);color:var(--text-on-dark)}
+.topbar :focus-visible,.drawer :focus-visible{outline-color:var(--color-mist)}
+.wordmark{font-size:20px;font-weight:700;letter-spacing:.02em;margin-right:10px}
+.inv-name{display:flex;align-items:center;gap:8px;padding:6px 8px;border:0;border-radius:4px;background:var(--color-ink);color:var(--text-on-dark);font-size:15px;font-weight:600;cursor:pointer}
+.inv-name svg{fill:none;stroke:var(--text-on-dark);stroke-width:1.5}
+.status{font-size:13px}
+.actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.vsep{width:1px;height:26px;background:var(--color-slate);margin:0 4px}
+.user-slot{width:32px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:0;border-radius:4px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--color-crimson);color:var(--text-on-dark)}
+.btn-secondary{background:var(--color-slate);color:var(--text-on-dark)}
+.btn-on-dark{background:var(--color-mist);color:var(--text-on-light)}
+.btn-on-dark.on{box-shadow:inset 0 -3px 0 var(--color-crimson)}
+.btn-danger{background:var(--color-rose);color:var(--text-on-light);border:1px solid var(--color-ink);padding:7px 13px}
+.btn-sm{padding:6px 11px;font-size:13px}
+.count{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border-radius:10px;background:var(--color-ink);color:var(--text-on-dark);font-size:12px}
+:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.canvas{flex:1;min-height:0;position:relative;overflow:hidden;background:var(--color-mist)}
+.graph{position:absolute;inset:0;width:100%;height:100%}
+.edge{stroke:var(--color-slate);stroke-width:2;fill:none}
+.edge.dashed{stroke-dasharray:7 5}
+.edge.imp{stroke:var(--color-ink);stroke-width:4}
+.fill-slate{fill:var(--color-slate)}
+.fill-ink{fill:var(--color-ink)}
+.n-txn,.n-gc,.n-ord,.n-misc{stroke:var(--color-ink);stroke-width:2}
+.n-txn{fill:var(--color-slate)}
+.n-gc{fill:var(--color-crimson)}
+.n-ord{fill:var(--color-ink)}
+.n-misc{fill:var(--color-rose)}
+.node text{font-size:15px;text-anchor:middle;fill:var(--text-on-light)}
+.incomplete{opacity:.75}
+.incomplete use{stroke-width:3;stroke-dasharray:6 4}
+.imp-outer{stroke-width:6}
+.imp-inner{fill:none;stroke-width:2}
+.st-slate{stroke:var(--color-slate)}
+.st-crimson{stroke:var(--color-crimson)}
+.st-ink{stroke:var(--color-ink)}
+.sel-ring{fill:var(--color-crimson)}
+.drawer{position:absolute;top:0;bottom:0;left:0;width:400px;display:flex;flex-direction:column;background:var(--color-slate);color:var(--text-on-dark);border-right:1px solid var(--color-ink)}
+.drawer-head{display:grid;gap:11px;padding:14px 16px;border-bottom:1px solid var(--color-ink)}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.drawer h2{margin:0;font-size:18px}
+.close{flex:none;width:30px;height:30px;border:0;border-radius:4px;background:var(--color-mist);color:var(--text-on-light);font-size:17px;cursor:pointer}
+.search{width:100%;padding:8px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.types{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+.mini{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.mini input,.check input{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
+.mbox{flex:none;position:relative;width:16px;height:16px;border:2px solid var(--color-ink);border-radius:2px;background:var(--color-mist)}
+.mini input:checked+.mbox::after{content:"";position:absolute;left:3px;top:0;width:4px;height:8px;border:solid var(--color-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.selects{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lbl{display:block;font-size:12px;font-weight:600;margin-bottom:3px}
+.select{position:relative}
+.select select{appearance:none;width:100%;padding:7px 28px 7px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.select::after{content:"";position:absolute;right:11px;top:50%;margin-top:-3px;border-left:5px solid var(--color-mist);border-right:5px solid var(--color-mist);border-top:6px solid var(--color-ink);pointer-events:none}
+.result{font-size:13px;font-weight:700}
+.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700}
+.badge-inc{background:var(--color-rose);color:var(--text-on-light)}
+.badge-imp{background:var(--color-ink);color:var(--text-on-dark);border:1px solid var(--color-mist)}
+.items{flex:1;overflow:auto;list-style:none;margin:0;padding:0}
+.item{display:flex;gap:12px;padding:10px 16px;border-bottom:1px solid var(--color-ink);cursor:pointer}
+.item.sel{background:var(--color-ink)}
+.item.inc{box-shadow:inset 4px 0 0 var(--color-rose)}
+.icon{flex:none;display:grid;place-items:center;width:30px;height:28px;border-radius:4px;background:var(--color-mist)}
+.icon svg{width:26px;height:22px}
+.item-title{font-weight:600}
+.item-meta{display:flex;align-items:center;gap:8px;margin-top:2px;font-size:12px}
+.sheet{position:absolute;top:0;bottom:0;right:0;width:640px;display:flex;flex-direction:column;background:var(--color-mist);border-left:1px solid var(--color-ink)}
+.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 28px 14px;border-bottom:1px solid var(--color-slate)}
+.kicker{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.sheet h2{margin:2px 0 0;font-size:21px}
+.updated{margin-top:3px;font-size:13px}
+.sheet .close{background:var(--color-slate);color:var(--text-on-dark)}
+.sheet-body{flex:1;overflow:auto;padding:20px 28px 28px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px 18px}
+.span3{grid-column:span 3}
+.field label{display:block;margin-bottom:4px;font-weight:600}
+.input{width:100%;padding:8px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.hint{margin-top:3px;font-size:12px}
+textarea.input{min-height:80px;resize:vertical}
+h3{margin:24px 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+fieldset{margin:22px 0 0;padding:12px 14px 14px;border:1px solid var(--color-slate);border-radius:6px}
+legend{padding:0 6px;font-weight:700}
+.hrow{display:grid;grid-template-columns:100px 108px 68px 56px 1fr 34px;gap:8px;align-items:center;margin-bottom:8px}
+.hrow.head{font-size:12px;font-weight:600;align-items:end}
+.remove{width:34px;height:34px;border:0;border-radius:4px;background:var(--color-slate);color:var(--text-on-dark);font-size:17px;cursor:pointer}
+.check{display:flex;align-items:center;gap:10px;margin-top:20px;font-weight:600;cursor:pointer}
+.box{flex:none;position:relative;width:20px;height:20px;border:2px solid var(--color-ink);border-radius:3px;background:var(--color-mist)}
+.check input:checked+.box::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--color-ink);border-width:0 3px 3px 0;transform:rotate(45deg)}
+.block{margin-top:18px}
+.sheet-foot{display:flex;align-items:center;gap:10px;padding:14px 28px;border-top:1px solid var(--color-slate)}
+.spacer{flex:1}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-slate" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="arrow-imp" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-ink" d="M0,0 L10,5 L0,10 z"/></marker>
+    <ellipse id="s-txn" rx="32" ry="32" vector-effect="non-scaling-stroke"/>
+    <rect id="s-gc" x="-40" y="-25" width="80" height="50" rx="8" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-ord" points="-35,0 -17.5,-30 17.5,-30 35,0 17.5,30 -17.5,30" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-misc" points="0,-34 34,0 0,34 -34,0" vector-effect="non-scaling-stroke"/>
+  </defs>
+</svg>
+<div class="app">
+  <header class="topbar">
+    <span class="wordmark">TxnWeave</span>
+    <button class="inv-name" aria-label="Rename investigation">Riverside gift card ring <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg></button>
+    <span class="status">Saved 15:21</span>
+    <div class="actions">
+      <button class="btn btn-on-dark on" aria-expanded="true">Documents <span class="count">11</span></button>
+      <span class="vsep"></span>
+      <button class="btn btn-on-dark">Load</button>
+      <button class="btn btn-on-dark">Save</button>
+      <button class="btn btn-on-dark">Settings</button>
+      <span class="user-slot"></span>
+    </div>
+  </header>
+  <main class="canvas">
+    <svg class="graph" viewBox="-328 -159 1967 1158" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Investigation graph, 11 nodes, Gift Card ending 0123 selected">
+      <g>
+        <line class="edge imp" x1="290.4" y1="374.8" x2="451.1" y2="294.5" marker-end="url(#arrow-imp)"/>
+        <line class="edge" x1="289.9" y1="406.2" x2="457.4" y2="496.9" marker-end="url(#arrow)"/>
+        <line class="edge imp" x1="541.9" y1="252.7" x2="754.9" y2="164.5" marker-end="url(#arrow-imp)"/>
+        <line class="edge imp" x1="541.8" y1="288.7" x2="754.4" y2="384.0" marker-end="url(#arrow-imp)"/>
+        <line class="edge" x1="541.9" y1="502.7" x2="753.7" y2="415.0" marker-end="url(#arrow)"/>
+        <line class="edge" x1="458.1" y1="255.3" x2="328.0" y2="209.8" marker-end="url(#arrow)"/>
+        <line class="edge dashed" x1="458.2" y1="542.6" x2="290.8" y2="633.3" marker-end="url(#arrow)"/>
+        <line class="edge" x1="116" y1="390" x2="222" y2="390" marker-end="url(#arrow)"/>
+        <line class="edge" x1="1024" y1="400" x2="830" y2="400" marker-end="url(#arrow)"/>
+        <line class="edge dashed" x1="862" y1="650" x2="1025" y2="650" marker-end="url(#arrow)"/>
+      </g>
+      <g>
+        <g class="node" transform="translate(80 390)"><use href="#s-misc" class="n-misc"/><text y="54">Camera review – Store 014</text></g>
+        <g class="node" transform="translate(300 200)"><use href="#s-misc" class="n-misc"/><text y="54">Refund at service desk</text></g>
+        <g class="node" transform="translate(260 390)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="55">TXN 00482913</text></g>
+        <g class="node" transform="translate(500 270)"><rect class="sel-ring" x="-49" y="-34" width="98" height="68" rx="13"/><use href="#s-gc" class="n-gc imp-outer"/><use href="#s-gc" class="imp-inner st-crimson"/><text y="55">GC …0123</text></g>
+        <g class="node" transform="translate(500 520)"><use href="#s-gc" class="n-gc"/><text y="45">GC …4471</text></g>
+        <g class="node" transform="translate(790 150)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="55">TXN 00483107</text></g>
+        <g class="node" transform="translate(790 400)"><use href="#s-ord" class="n-ord imp-outer"/><use href="#s-ord" class="imp-inner st-ink"/><text y="52">ORD 70015529</text></g>
+        <g class="node" transform="translate(1060 400)"><use href="#s-misc" class="n-misc"/><text y="54">Parking lot pickup</text></g>
+        <g class="node incomplete" transform="translate(260 650)"><use href="#s-txn" class="n-txn"/><text y="53">TXN 00495120 (incomplete)</text></g>
+        <g class="node incomplete" transform="translate(820 650)"><use href="#s-gc" class="n-gc"/><text y="45">GC …8862 (incomplete)</text></g>
+        <g class="node" transform="translate(1060 650)"><use href="#s-txn" class="n-txn"/><text y="53">TXN 00491550</text></g>
+      </g>
+    </svg>
+    <aside class="drawer" aria-label="Documents">
+      <div class="drawer-head">
+        <div class="row-between">
+          <h2>Documents</h2>
+          <div class="row-between">
+            <button class="btn btn-on-dark btn-sm" aria-haspopup="menu">New document ▾</button>
+            <button class="close" aria-label="Close documents">×</button>
+          </div>
+        </div>
+        <input class="search" type="search" autocomplete="off" placeholder="Search documents" aria-label="Search documents">
+        <div class="types" role="group" aria-label="Document types">
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Transaction</label>
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Gift Card</label>
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Online Order</label>
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Misc</label>
+        </div>
+        <div class="selects">
+          <div><label class="lbl" for="status">Status</label><div class="select"><select id="status"><option>All</option><option>Complete</option><option>Incomplete</option></select></div></div>
+          <div><label class="lbl" for="sort">Sort</label><div class="select"><select id="sort"><option>Title A–Z</option><option>Title Z–A</option><option>Date newest</option><option>Date oldest</option></select></div></div>
+        </div>
+        <label class="mini"><input type="checkbox"><span class="mbox"></span>Important only</label>
+        <div class="row-between"><span class="result">Showing 11 of 11</span><span class="badge badge-inc">2 incomplete</span></div>
+      </div>
+      <ul class="items">
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span><div><div class="item-title">Camera review – Store 014</div><div class="item-meta">Misc · 03-18-2026</div></div></li>
+        <li class="item sel" aria-current="true"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span><div><div class="item-title">Gift Card …0123</div><div class="item-meta">Gift Card · 03-14-2026 <span class="badge badge-imp">Important</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span><div><div class="item-title">Gift Card …4471</div><div class="item-meta">Gift Card · 03-14-2026</div></div></li>
+        <li class="item inc"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span><div><div class="item-title">Gift Card …8862</div><div class="item-meta">Gift Card · no date <span class="badge badge-inc">Incomplete</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg></span><div><div class="item-title">Online Order 70015529</div><div class="item-meta">Online Order · 03-16-2026 <span class="badge badge-imp">Important</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span><div><div class="item-title">Parking lot pickup</div><div class="item-meta">Misc · 03-17-2026</div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span><div><div class="item-title">Refund at service desk</div><div class="item-meta">Misc · 03-20-2026</div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span><div><div class="item-title">Transaction 00482913 · 03-14-2026 · Store 014 · Reg 003</div><div class="item-meta">Transaction · 03-14-2026 <span class="badge badge-imp">Important</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span><div><div class="item-title">Transaction 00483107 · 03-15-2026 · Store 022 · Reg 001</div><div class="item-meta">Transaction · 03-15-2026 <span class="badge badge-imp">Important</span></div></div></li>
+      </ul>
+    </aside>
+    <section class="sheet" aria-label="Document form">
+      <div class="sheet-head">
+        <div>
+          <div class="kicker">Gift Card</div>
+          <h2>Gift Card …0123</h2>
+          <div class="updated">Last saved 11-20-2026 at 15:21</div>
+        </div>
+        <button class="close" aria-label="Close document">×</button>
+      </div>
+      <form class="sheet-body">
+        <div class="grid">
+          <div class="field span3"><label for="gcn">Gift card number*</label><input id="gcn" class="input" inputmode="numeric" maxlength="24" value="6034000000000123"></div>
+        </div>
+        <h3>Activation</h3>
+        <div class="grid">
+          <div class="field"><label for="atx">Transaction number*</label><input id="atx" class="input" inputmode="numeric" maxlength="8" value="00482913"></div>
+          <div class="field"><label for="adate">Date*</label><input id="adate" class="input" value="03-14-2026"><div class="hint">MM-DD-YYYY</div></div>
+          <div class="field"><label for="atime">Time*</label><input id="atime" class="input" value="10:42"><div class="hint">HH:MM, 24-hour</div></div>
+          <div class="field"><label for="astore">Store number</label><input id="astore" class="input" inputmode="numeric" maxlength="3" value="014"></div>
+          <div class="field"><label for="aamt">Amount</label><input id="aamt" class="input" value="$500.00"></div>
+        </div>
+        <fieldset>
+          <legend>History</legend>
+          <div class="hrow head"><span>Transaction*</span><span>Date*</span><span>Time*</span><span>Store</span><span>Amount<span class="hint">+ added to card, − spent from card</span></span><span></span></div>
+          <div class="hrow"><input class="input" aria-label="History 1 transaction number" value="00483107"><input class="input" aria-label="History 1 date" value="03-15-2026"><input class="input" aria-label="History 1 time" value="13:05"><input class="input" aria-label="History 1 store number" value="022"><input class="input" aria-label="History 1 amount" value="-$350.00"><button class="remove" type="button" aria-label="Remove history entry 1">×</button></div>
+          <button class="btn btn-secondary btn-sm" type="button">+ Add history entry</button>
+        </fieldset>
+        <label class="check"><input type="checkbox" checked><span class="box"></span>Important</label>
+        <div class="block field"><label for="notes">Notes</label><textarea id="notes" class="input">One of two $500 cards bought with the same credit card at Store 014. Drained within 48 hours at Store 022 and online.</textarea></div>
+      </form>
+      <div class="sheet-foot">
+        <button class="btn btn-danger" type="button">Delete document</button>
+        <span class="spacer"></span>
+        <button class="btn btn-secondary" type="button">Show on graph</button>
+        <button class="btn btn-primary" type="button">Save</button>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

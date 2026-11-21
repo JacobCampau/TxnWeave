@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Screens</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45;color:var(--text-on-light);background:var(--color-mist)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+header{padding:22px 40px;background:var(--color-ink);color:var(--text-on-dark)}
+header h1{margin:0;font-size:24px}
+header p{margin:4px 0 0}
+main{max-width:980px;margin:0 auto;padding:28px 40px 56px}
+h2{margin:28px 0 10px;font-size:17px}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+a{display:block;padding:14px 18px;border:1px solid var(--color-ink);border-left:6px solid var(--color-slate);border-radius:4px;color:var(--text-on-light);text-decoration:none}
+a:hover{border-left-color:var(--color-crimson)}
+a:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.name{font-weight:700}
+.ids{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.id{padding:1px 7px;border-radius:3px;background:var(--color-slate);color:var(--text-on-dark);font-size:12px;font-weight:700}
+.desc{margin:0}
+</style>
+</head>
+<body>
+<header>
+  <h1>TxnWeave</h1>
+  <p>Screens of the planned app</p>
+</header>
+<main>
+  <h2>Start and app shell</h2>
+  <ul>
+    <li><a href="fr-01-fr-11-uc05-start-dialog.html"><span class="name">Start dialog</span><span class="ids"><span class="id">FR-01</span><span class="id">FR-11</span><span class="id">UC05</span></span><p class="desc">Resume last session, start a new investigation, or load a CSV save file.</p></a></li>
+    <li><a href="fr-11-fr-19-uc05-load-report-dialog.html"><span class="name">Load report dialog</span><span class="ids"><span class="id">FR-11</span><span class="id">FR-19</span><span class="id">UC05</span></span><p class="desc">A CSV with problem rows: counts, each problem's row and reason, and Proceed anyway or Cancel.</p></a></li>
+  </ul>
+  <h2>Investigation page</h2>
+  <ul>
+    <li><a href="fr-01-fr-02-investigation-empty-rename.html"><span class="name">Empty investigation, renaming</span><span class="ids"><span class="id">FR-01</span><span class="id">FR-02</span></span><p class="desc">A new investigation with no documents yet, while its name is edited inline in the top bar.</p></a></li>
+    <li><a href="fr-02-fr-08-fr-10-fr-11-fr-18-fr-20-fr-21-uc01-uc04-investigation-graph.html"><span class="name">Investigation graph with legend</span><span class="ids"><span class="id">FR-02</span><span class="id">FR-08</span><span class="id">FR-10</span><span class="id">FR-11</span><span class="id">FR-18</span><span class="id">FR-20</span><span class="id">FR-21</span><span class="id">UC01</span><span class="id">UC04</span></span><p class="desc">The generated graph with edge labels, incomplete nodes, the toolbar and legend, just after saving to CSV.</p></a></li>
+    <li><a href="fr-09-fr-14-fr-15-uc03-uc06-uc07-important-path-property-panel.html"><span class="name">Important path and node details</span><span class="ids"><span class="id">FR-09</span><span class="id">FR-14</span><span class="id">FR-15</span><span class="id">UC03</span><span class="id">UC06</span><span class="id">UC07</span></span><p class="desc">A selected important Gift Card in the PropertyPanel, with the important route highlighted on the graph.</p></a></li>
+    <li><a href="fr-17-uc09-export-png-dialog.html"><span class="name">Export PNG dialog</span><span class="ids"><span class="id">FR-17</span><span class="id">UC09</span></span><p class="desc">Choosing landscape or portrait before exporting the graph as an image.</p></a></li>
+  </ul>
+  <h2>Documents page</h2>
+  <ul>
+    <li><a href="fr-03-fr-12-uc02-transaction-form-errors.html"><span class="name">New Transaction with errors</span><span class="ids"><span class="id">FR-03</span><span class="id">FR-12</span><span class="id">UC02</span></span><p class="desc">A Transaction form blocked by validation, with an error summary and inline errors.</p></a></li>
+    <li><a href="fr-04-fr-08-fr-12-uc02-incomplete-gift-card.html"><span class="name">Incomplete Gift Card</span><span class="ids"><span class="id">FR-04</span><span class="id">FR-08</span><span class="id">FR-12</span><span class="id">UC02</span></span><p class="desc">An incomplete node opened as a prefilled Gift Card form, with its missing fields flagged.</p></a></li>
+    <li><a href="fr-05-fr-07-fr-14-uc02-uc06-online-order-important-saved.html"><span class="name">Online Order saved as important</span><span class="ids"><span class="id">FR-05</span><span class="id">FR-07</span><span class="id">FR-14</span><span class="id">UC02</span><span class="id">UC06</span></span><p class="desc">An edited Online Order marked important and saved, with Important badges in the list.</p></a></li>
+    <li><a href="fr-06-fr-16-uc02-document-search.html"><span class="name">Document search</span><span class="ids"><span class="id">FR-06</span><span class="id">FR-16</span><span class="id">UC02</span></span><p class="desc">Searching the last 4 card digits finds the card and every document that used it, here a Misc document.</p></a></li>
+    <li><a href="fr-07-uc02-delete-document-confirm.html"><span class="name">Delete document</span><span class="ids"><span class="id">FR-07</span><span class="id">UC02</span></span><p class="desc">Confirming a delete that lists the documents that will show the Transaction as incomplete.</p></a></li>
+  </ul>
+  <h2>Investigation settings page</h2>
+  <ul>
+    <li><a href="fr-01-fr-13-uc08-investigation-settings.html"><span class="name">Investigation settings</span><span class="ids"><span class="id">FR-01</span><span class="id">FR-13</span><span class="id">UC08</span></span><p class="desc">Color and shape for each document type, the important-connection color, and Delete investigation.</p></a></li>
+  </ul>
+</main>
+</body>
+</html>

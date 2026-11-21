@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Workspace</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:var(--text-on-light);background:var(--color-mist);scrollbar-color:var(--color-slate) var(--color-ink)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+button,input,select,textarea{font:inherit}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;min-width:1280px}
+.topbar{flex:none;display:flex;align-items:center;gap:20px;height:56px;padding:0 20px;background:var(--color-ink);color:var(--text-on-dark)}
+.wordmark{font-size:20px;font-weight:700;letter-spacing:.02em;margin-right:8px}
+.tabs{display:flex;align-self:stretch}
+.tabs a{display:flex;align-items:center;padding:3px 16px 0;border-bottom:3px solid var(--color-ink);color:var(--text-on-dark);text-decoration:none}
+.tabs a[aria-current="page"]{font-weight:700;border-bottom-color:var(--color-crimson)}
+.inv{display:flex;align-items:center;gap:14px;margin-left:12px}
+.inv-name{display:flex;align-items:center;gap:8px;padding:6px 8px;border:0;border-radius:4px;background:var(--color-ink);color:var(--text-on-dark);font-size:15px;font-weight:600;cursor:pointer}
+.inv-name svg{fill:none;stroke:var(--text-on-dark);stroke-width:1.5}
+.status{font-size:13px}
+.actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.user-slot{width:32px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:0;border-radius:4px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--color-crimson);color:var(--text-on-dark);box-shadow:0 0 0 2px var(--color-ink)}
+.btn-on-dark{background:var(--color-mist);color:var(--text-on-light)}
+.btn-sm{padding:6px 12px;font-size:13px}
+:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.toolbar{flex:none;display:flex;align-items:center;gap:8px;height:50px;padding:0 16px;background:var(--color-slate);color:var(--text-on-dark);border-bottom:1px solid var(--color-ink)}
+.sep{width:1px;height:28px;background:var(--color-ink);margin:0 6px}
+.spacer{flex:1}
+.stats{font-size:13px;margin-right:10px}
+.tick{flex:none;position:relative;width:14px;height:14px;border:2px solid var(--color-ink);border-radius:2px;background:var(--color-mist)}
+.tick.on{background:var(--color-ink)}
+.tick.on::after{content:"";position:absolute;left:2px;top:-1px;width:4px;height:8px;border:solid var(--color-mist);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.canvas{flex:1;min-height:0;position:relative;overflow:hidden;background:var(--color-mist)}
+.graph{position:absolute;inset:0;width:100%;height:100%}
+.edge{stroke:var(--color-slate);stroke-width:2;fill:none}
+.edge.dashed{stroke-dasharray:7 5}
+.edge.imp{stroke:var(--color-ink);stroke-width:4}
+.fill-slate{fill:var(--color-slate)}
+.fill-ink{fill:var(--color-ink)}
+.elabels rect{fill:var(--color-mist)}
+.elabels text{font-size:10px;text-anchor:middle;fill:var(--text-on-light)}
+.n-txn,.n-gc,.n-ord,.n-misc{stroke:var(--color-ink);stroke-width:2}
+.n-txn{fill:var(--color-slate)}
+.n-gc{fill:var(--color-crimson)}
+.n-ord{fill:var(--color-ink)}
+.n-misc{fill:var(--color-rose)}
+.node text{font-size:12px;text-anchor:middle;fill:var(--text-on-light)}
+.incomplete{opacity:.75}
+.incomplete use{stroke-width:3;stroke-dasharray:6 4}
+.imp-outer{stroke-width:6}
+.imp-inner{fill:none;stroke-width:2}
+.st-slate{stroke:var(--color-slate)}
+.st-crimson{stroke:var(--color-crimson)}
+.st-ink{stroke:var(--color-ink)}
+.sel-ring{fill:var(--color-crimson)}
+.imp-line{stroke:var(--color-ink);stroke-width:4}
+.legend{position:absolute;top:12px;right:14px;width:200px;padding:10px 12px;background:var(--color-mist);border:1px solid var(--color-ink);border-radius:6px}
+.legend h2{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.legend ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.legend li{display:flex;align-items:center;gap:8px;font-size:12px}
+.legend svg{flex:none;width:34px;height:24px}
+.splitter{flex:none;display:grid;place-items:center;height:12px;background:var(--color-slate);border-top:1px solid var(--color-ink);border-bottom:1px solid var(--color-ink);cursor:row-resize}
+.splitter span{width:56px;height:4px;border-radius:2px;background:var(--color-mist)}
+.dock{flex:none;height:44vh;display:flex;flex-direction:column;background:var(--color-slate);color:var(--text-on-dark)}
+.dock :focus-visible{outline-color:var(--color-mist)}
+.dock-head{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--color-ink)}
+.dock-head h2{margin:0 6px 0 0;font-size:17px}
+.search{width:240px;padding:6px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.chips{display:flex;gap:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--color-ink);border-radius:14px;background:var(--color-mist);color:var(--text-on-light);font-size:12px;font-weight:600;cursor:pointer}
+.chip svg{width:18px;height:14px}
+.select{position:relative}
+.select select{appearance:none;padding:6px 28px 6px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.select::after{content:"";position:absolute;right:11px;top:50%;margin-top:-3px;border-left:5px solid var(--color-mist);border-right:5px solid var(--color-mist);border-top:6px solid var(--color-ink);pointer-events:none}
+.mini{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;white-space:nowrap}
+.mini input,.check input{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
+.mbox{flex:none;position:relative;width:16px;height:16px;border:2px solid var(--color-ink);border-radius:2px;background:var(--color-mist)}
+.mini input:checked+.mbox::after{content:"";position:absolute;left:3px;top:0;width:4px;height:8px;border:solid var(--color-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.result{font-size:13px;font-weight:700;white-space:nowrap}
+.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-inc{background:var(--color-rose);color:var(--text-on-light)}
+.badge-imp{background:var(--color-ink);color:var(--text-on-dark);border:1px solid var(--color-mist)}
+.table-wrap{flex:1;overflow:auto}
+table{width:100%;border-collapse:collapse}
+th{position:sticky;top:0;z-index:1;padding:7px 10px;background:var(--color-ink);text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+td{padding:6px 10px;border-bottom:1px solid var(--color-ink);white-space:nowrap}
+th.num,td.num{text-align:right}
+td.title{display:flex;align-items:center;gap:10px;font-weight:600}
+.icon{flex:none;display:grid;place-items:center;width:26px;height:22px;border-radius:3px;background:var(--color-mist)}
+.icon svg{width:22px;height:18px}
+tr.inc td:first-child{box-shadow:inset 4px 0 0 var(--color-rose)}
+tr.sel td,tr.detail td{background:var(--color-ink)}
+tr.sel td:first-child{box-shadow:inset 4px 0 0 var(--color-crimson)}
+tr.detail td{padding:4px 16px 16px 46px;white-space:normal}
+.detail-grid{display:grid;grid-template-columns:330px 330px 1fr;gap:28px}
+.detail-grid h3{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.fields{display:grid;grid-template-columns:130px 1fr;gap:3px 10px;margin:0;font-size:13px}
+.fields dt{font-weight:600}
+.fields dd{margin:0}
+.mono{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.links{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.links button{width:100%;display:flex;align-items:center;gap:8px;padding:4px 8px;border:1px solid var(--color-slate);border-radius:4px;background:var(--color-slate);color:var(--text-on-dark);font-size:13px;text-align:left;cursor:pointer}
+.links .kind{margin-left:auto;font-size:12px}
+.detail-actions{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.note{margin:0;font-size:13px;max-width:380px}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-slate" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="arrow-imp" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-ink" d="M0,0 L10,5 L0,10 z"/></marker>
+    <ellipse id="s-txn" rx="32" ry="32" vector-effect="non-scaling-stroke"/>
+    <rect id="s-gc" x="-40" y="-25" width="80" height="50" rx="8" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-ord" points="-35,0 -17.5,-30 17.5,-30 35,0 17.5,30 -17.5,30" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-misc" points="0,-34 34,0 0,34 -34,0" vector-effect="non-scaling-stroke"/>
+  </defs>
+</svg>
+<div class="app">
+  <header class="topbar">
+    <span class="wordmark">TxnWeave</span>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#" aria-current="page">Workspace</a>
+      <a href="#">Settings</a>
+    </nav>
+    <div class="inv">
+      <button class="inv-name" aria-label="Rename investigation">Riverside gift card ring <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg></button>
+      <span class="status">Saved 15:06</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-on-dark">Load</button>
+      <button class="btn btn-on-dark">Save</button>
+      <span class="user-slot"></span>
+    </div>
+  </header>
+  <div class="toolbar" role="toolbar" aria-label="Graph tools">
+    <button class="btn btn-on-dark btn-sm">Fit to screen</button>
+    <button class="btn btn-on-dark btn-sm">Zoom in</button>
+    <button class="btn btn-on-dark btn-sm">Zoom out</button>
+    <button class="btn btn-on-dark btn-sm">Re-layout</button>
+    <span class="sep"></span>
+    <button class="btn btn-on-dark btn-sm" aria-pressed="true"><span class="tick on"></span>Edge labels</button>
+    <button class="btn btn-on-dark btn-sm" aria-pressed="true"><span class="tick on"></span>Legend</button>
+    <span class="spacer"></span>
+    <span class="stats">11 nodes · 10 connections · 2 incomplete</span>
+    <button class="btn btn-primary btn-sm">Export PNG</button>
+  </div>
+  <main class="canvas">
+    <svg class="graph" viewBox="-40 110 1200 620" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Investigation graph, 11 nodes, Gift Card ending 0123 selected">
+      <g>
+        <line class="edge imp" x1="290.4" y1="374.8" x2="451.1" y2="294.5" marker-end="url(#arrow-imp)"/>
+        <line class="edge" x1="289.9" y1="406.2" x2="457.4" y2="496.9" marker-end="url(#arrow)"/>
+        <line class="edge imp" x1="541.9" y1="252.7" x2="754.9" y2="164.5" marker-end="url(#arrow-imp)"/>
+        <line class="edge imp" x1="541.8" y1="288.7" x2="754.4" y2="384.0" marker-end="url(#arrow-imp)"/>
+        <line class="edge" x1="541.9" y1="502.7" x2="753.7" y2="415.0" marker-end="url(#arrow)"/>
+        <line class="edge" x1="458.1" y1="255.3" x2="328.0" y2="209.8" marker-end="url(#arrow)"/>
+        <line class="edge dashed" x1="458.2" y1="542.6" x2="290.8" y2="633.3" marker-end="url(#arrow)"/>
+        <line class="edge" x1="116" y1="390" x2="222" y2="390" marker-end="url(#arrow)"/>
+        <line class="edge" x1="1024" y1="400" x2="830" y2="400" marker-end="url(#arrow)"/>
+        <line class="edge dashed" x1="862" y1="650" x2="1025" y2="650" marker-end="url(#arrow)"/>
+      </g>
+      <g class="elabels">
+        <g transform="translate(374 333)"><rect x="-25" y="-8" width="50" height="15"/><text y="3.5">activated</text></g>
+        <g transform="translate(374 452)"><rect x="-25" y="-8" width="50" height="15"/><text y="3.5">activated</text></g>
+        <g transform="translate(650 208)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(650 337)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(650 458)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(393 233)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(374 588)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(170 390)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">related</text></g>
+        <g transform="translate(926 400)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">related</text></g>
+        <g transform="translate(944 650)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+      </g>
+      <g>
+        <g class="node" transform="translate(80 390)"><use href="#s-misc" class="n-misc"/><text y="51">Camera review – Store 014</text></g>
+        <g class="node" transform="translate(300 200)"><use href="#s-misc" class="n-misc"/><text y="51">Refund at service desk</text></g>
+        <g class="node" transform="translate(260 390)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="52">TXN 00482913</text></g>
+        <g class="node" transform="translate(500 270)"><rect class="sel-ring" x="-49" y="-34" width="98" height="68" rx="13"/><use href="#s-gc" class="n-gc imp-outer"/><use href="#s-gc" class="imp-inner st-crimson"/><text y="52">GC …0123</text></g>
+        <g class="node" transform="translate(500 520)"><use href="#s-gc" class="n-gc"/><text y="42">GC …4471</text></g>
+        <g class="node" transform="translate(790 150)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="52">TXN 00483107</text></g>
+        <g class="node" transform="translate(790 400)"><use href="#s-ord" class="n-ord imp-outer"/><use href="#s-ord" class="imp-inner st-ink"/><text y="49">ORD 70015529</text></g>
+        <g class="node" transform="translate(1060 400)"><use href="#s-misc" class="n-misc"/><text y="51">Parking lot pickup</text></g>
+        <g class="node incomplete" transform="translate(260 650)"><use href="#s-txn" class="n-txn"/><text y="50">TXN 00495120 (incomplete)</text></g>
+        <g class="node incomplete" transform="translate(820 650)"><use href="#s-gc" class="n-gc"/><text y="42">GC …8862 (incomplete)</text></g>
+        <g class="node" transform="translate(1060 650)"><use href="#s-txn" class="n-txn"/><text y="50">TXN 00491550</text></g>
+      </g>
+    </svg>
+    <aside class="legend" aria-label="Legend">
+      <h2>Legend</h2>
+      <ul>
+        <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg>Transaction</li>
+        <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg>Gift Card</li>
+        <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg>Online Order</li>
+        <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg>Misc</li>
+        <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><g class="incomplete"><use href="#s-txn" class="n-txn"/></g></svg>Incomplete node</li>
+        <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/></svg>Important node</li>
+        <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><line class="imp-line" vector-effect="non-scaling-stroke" x1="-48" y1="0" x2="48" y2="0"/></svg>Important connection</li>
+      </ul>
+    </aside>
+  </main>
+  <div class="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize documents panel"><span></span></div>
+  <section class="dock" aria-label="Documents">
+    <div class="dock-head">
+      <h2>Documents</h2>
+      <input class="search" type="search" autocomplete="off" placeholder="Search documents" aria-label="Search documents">
+      <div class="chips" role="group" aria-label="Document types">
+        <button class="chip" aria-pressed="true"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg>Transaction</button>
+        <button class="chip" aria-pressed="true"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg>Gift Card</button>
+        <button class="chip" aria-pressed="true"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg>Online Order</button>
+        <button class="chip" aria-pressed="true"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg>Misc</button>
+      </div>
+      <div class="select"><select aria-label="Status"><option>All statuses</option><option>Complete</option><option>Incomplete</option></select></div>
+      <div class="select"><select aria-label="Sort"><option>Date oldest</option><option>Date newest</option><option>Title A–Z</option><option>Title Z–A</option></select></div>
+      <label class="mini"><input type="checkbox"><span class="mbox"></span>Important only</label>
+      <span class="spacer"></span>
+      <span class="result">Showing 11 of 11</span>
+      <span class="badge badge-inc">2 incomplete</span>
+      <button class="btn btn-on-dark btn-sm" aria-haspopup="menu">New document ▾</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Important</th><th>Title</th><th>Type</th><th>Date</th><th>Store</th><th class="num">Amount</th><th class="num">Links</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><label class="mini"><input type="checkbox" checked aria-label="Important: Transaction 00482913"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>Transaction 00482913 · 03-14-2026 · Store 014 · Reg 003</td><td>Transaction</td><td>03-14-2026</td><td>014</td><td class="num">$1,000.00</td><td class="num">3</td><td><span class="badge badge-imp">Important</span></td></tr>
+          <tr class="sel" aria-selected="true"><td><label class="mini"><input type="checkbox" checked aria-label="Important: Gift Card ending 0123"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span>Gift Card …0123</td><td>Gift Card</td><td>03-14-2026</td><td>014</td><td class="num">$500.00</td><td class="num">4</td><td><span class="badge badge-imp">Important</span></td></tr>
+          <tr class="detail">
+            <td colspan="8">
+              <div class="detail-grid">
+                <div>
+                  <h3>Details</h3>
+                  <dl class="fields">
+                    <dt>Gift card number</dt><dd class="mono">6034 0000 0000 0123</dd>
+                    <dt>Activated in</dt><dd>Transaction 00482913</dd>
+                    <dt>Activation</dt><dd>03-14-2026 at 10:42 · Store 014</dd>
+                    <dt>Activation amount</dt><dd>$500.00</dd>
+                    <dt>History</dt><dd>00483107 · 03-15-2026 · -$350.00</dd>
+                  </dl>
+                </div>
+                <div>
+                  <h3>Connected nodes</h3>
+                  <ul class="links">
+                    <li><button><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>TXN 00482913<span class="kind">activated</span></button></li>
+                    <li><button><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>TXN 00483107<span class="kind">used in</span></button></li>
+                    <li><button><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg></span>ORD 70015529<span class="kind">used in</span></button></li>
+                    <li><button><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span>Refund at service desk<span class="kind">used in</span></button></li>
+                  </ul>
+                </div>
+                <div class="detail-actions">
+                  <h3>Notes</h3>
+                  <p class="note">One of two $500 cards bought with the same credit card at Store 014. Drained within 48 hours at Store 022 and online.</p>
+                  <button class="btn btn-on-dark btn-sm">Edit document</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr><td><label class="mini"><input type="checkbox" aria-label="Important: Gift Card ending 4471"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span>Gift Card …4471</td><td>Gift Card</td><td>03-14-2026</td><td>014</td><td class="num">$500.00</td><td class="num">3</td><td></td></tr>
+          <tr><td><label class="mini"><input type="checkbox" checked aria-label="Important: Transaction 00483107"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>Transaction 00483107 · 03-15-2026 · Store 022 · Reg 001</td><td>Transaction</td><td>03-15-2026</td><td>022</td><td class="num">$350.00</td><td class="num">1</td><td><span class="badge badge-imp">Important</span></td></tr>
+          <tr><td><label class="mini"><input type="checkbox" checked aria-label="Important: Online Order 70015529"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg></span>Online Order 70015529</td><td>Online Order</td><td>03-16-2026</td><td>014</td><td class="num">$300.00</td><td class="num">3</td><td><span class="badge badge-imp">Important</span></td></tr>
+          <tr><td><label class="mini"><input type="checkbox" aria-label="Important: Parking lot pickup"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span>Parking lot pickup</td><td>Misc</td><td>03-17-2026</td><td>—</td><td class="num">—</td><td class="num">1</td><td></td></tr>
+          <tr><td><label class="mini"><input type="checkbox" aria-label="Important: Camera review – Store 014"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span>Camera review – Store 014</td><td>Misc</td><td>03-18-2026</td><td>—</td><td class="num">—</td><td class="num">1</td><td></td></tr>
+          <tr><td><label class="mini"><input type="checkbox" aria-label="Important: Refund at service desk"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span>Refund at service desk</td><td>Misc</td><td>03-20-2026</td><td>—</td><td class="num">-$40.00</td><td class="num">1</td><td></td></tr>
+          <tr><td><label class="mini"><input type="checkbox" aria-label="Important: Transaction 00491550"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>Transaction 00491550 · 03-21-2026 · Store 014 · Reg 002</td><td>Transaction</td><td>03-21-2026</td><td>014</td><td class="num">$65.00</td><td class="num">1</td><td></td></tr>
+          <tr class="inc"><td><label class="mini"><input type="checkbox" disabled aria-label="Important: Transaction 00495120, save this document to mark it important"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>Transaction 00495120 · 03-22-2026 · Store 031</td><td>Transaction</td><td>03-22-2026</td><td>031</td><td class="num">—</td><td class="num">1</td><td><span class="badge badge-inc">Incomplete</span></td></tr>
+          <tr class="inc"><td><label class="mini"><input type="checkbox" disabled aria-label="Important: Gift Card ending 8862, save this document to mark it important"><span class="mbox"></span></label></td><td class="title"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span>Gift Card …8862</td><td>Gift Card</td><td>—</td><td>—</td><td class="num">—</td><td class="num">1</td><td><span class="badge badge-inc">Incomplete</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+</body>
+</html>

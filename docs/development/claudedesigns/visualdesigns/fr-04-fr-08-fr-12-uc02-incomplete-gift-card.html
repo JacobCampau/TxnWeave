@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Documents</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:var(--text-on-light);background:var(--color-mist);scrollbar-color:var(--color-slate) var(--color-ink)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+button,input,select,textarea{font:inherit}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;min-width:1280px}
+.topbar{flex:none;display:flex;align-items:center;gap:20px;height:56px;padding:0 20px;background:var(--color-ink);color:var(--text-on-dark)}
+.wordmark{font-size:20px;font-weight:700;letter-spacing:.02em;margin-right:8px}
+.tabs{display:flex;align-self:stretch}
+.tabs a{display:flex;align-items:center;padding:3px 16px 0;border-bottom:3px solid var(--color-ink);color:var(--text-on-dark);text-decoration:none}
+.tabs a[aria-current="page"]{font-weight:700;border-bottom-color:var(--color-crimson)}
+.inv{display:flex;align-items:center;gap:14px;margin-left:12px}
+.inv-name{display:flex;align-items:center;gap:8px;padding:6px 8px;border:0;border-radius:4px;background:var(--color-ink);color:var(--text-on-dark);font-size:15px;font-weight:600;cursor:pointer}
+.inv-name svg{fill:none;stroke:var(--text-on-dark);stroke-width:1.5}
+.status{font-size:13px}
+.actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.user-slot{width:32px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:0;border-radius:4px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--color-crimson);color:var(--text-on-dark)}
+.btn-secondary{background:var(--color-slate);color:var(--text-on-dark)}
+.btn-on-dark{background:var(--color-mist);color:var(--text-on-light)}
+:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.ring-light{outline:3px solid var(--color-ink);outline-offset:2px}
+.docs{flex:1;display:flex;min-height:0}
+.list-pane{flex:none;width:360px;display:flex;flex-direction:column;background:var(--color-slate);color:var(--text-on-dark)}
+.list-head{display:grid;gap:12px;padding:16px;border-bottom:1px solid var(--color-ink)}
+.list-title{display:flex;align-items:center;justify-content:space-between}
+.list-title h1{margin:0;font-size:18px}
+.list-pane .btn-primary{box-shadow:0 0 0 2px var(--color-ink)}
+.chev{fill:none;stroke:var(--text-on-dark);stroke-width:2}
+.search{width:100%;padding:8px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.search::placeholder{color:var(--text-on-light);opacity:1;font-style:italic}
+.types{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+.mini{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.mini input{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
+.mbox{flex:none;position:relative;width:16px;height:16px;border:2px solid var(--color-ink);border-radius:2px;background:var(--color-mist)}
+.mini input:checked+.mbox::after{content:"";position:absolute;left:3px;top:0;width:4px;height:8px;border:solid var(--color-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.selects{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.selects label{display:block;font-size:12px;font-weight:600;margin-bottom:3px}
+.select{position:relative}
+.select select{appearance:none;width:100%;padding:7px 28px 7px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.select::after{content:"";position:absolute;right:11px;top:50%;margin-top:-3px;border-left:5px solid var(--color-mist);border-right:5px solid var(--color-mist);border-top:6px solid var(--color-ink);pointer-events:none}
+.result{display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700}
+.badge-inc{background:var(--color-rose);color:var(--text-on-light)}
+.badge-imp{background:var(--color-ink);color:var(--text-on-dark);border:1px solid var(--color-mist)}
+.items{flex:1;overflow:auto;list-style:none;margin:0;padding:0}
+.item{display:flex;gap:12px;padding:11px 16px;border-bottom:1px solid var(--color-ink);cursor:pointer}
+.item.sel{background:var(--color-ink)}
+.item.inc{border-left:4px solid var(--color-rose);padding-left:12px}
+.icon{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:4px;background:var(--color-mist)}
+.icon svg{width:26px;height:22px}
+.item-title{font-weight:600}
+.item-meta{display:flex;align-items:center;gap:8px;margin-top:3px;font-size:12px}
+.n-txn,.n-gc,.n-ord,.n-misc{stroke:var(--color-ink);stroke-width:2}
+.n-txn{fill:var(--color-slate)}
+.n-gc{fill:var(--color-crimson)}
+.n-ord{fill:var(--color-ink)}
+.n-misc{fill:var(--color-rose)}
+.form-pane{flex:1;overflow:auto;padding:24px 40px 48px;background:var(--color-mist)}
+.form-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;max-width:860px;margin-bottom:18px}
+.kicker{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.kicker .badge{text-transform:none;letter-spacing:0}
+.form-head h2{margin:2px 0 0;font-size:22px}
+.notice{max-width:860px;margin-bottom:22px;padding:12px 16px;border:1px solid var(--color-slate);border-left:4px solid var(--color-rose);border-radius:4px}
+.notice p{margin:0}
+h3{max-width:860px;margin:24px 0 10px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(3,230px);gap:16px 24px}
+.field label{display:block;margin-bottom:4px;font-weight:600}
+.req{margin-left:2px}
+.input{width:100%;padding:8px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.input.err{padding:7px 9px;border:2px solid var(--color-crimson)}
+.wide{width:300px}
+.msg{margin-top:4px;font-size:13px}
+.hint{margin-top:4px;font-size:12px}
+textarea.input{min-height:84px;resize:vertical}
+fieldset{max-width:860px;margin:26px 0 0;padding:14px 18px 16px;border:1px solid var(--color-slate);border-radius:6px}
+legend{padding:0 6px;font-weight:700}
+.row{display:grid;grid-template-columns:150px 140px 100px 90px 160px 36px;gap:12px;align-items:start;margin-bottom:10px}
+.row-head{margin-bottom:4px;font-size:13px;font-weight:600}
+.row-head .hint{display:block;margin:0;font-weight:400}
+.remove{width:36px;height:36px;border:0;border-radius:4px;background:var(--color-slate);color:var(--text-on-dark);font-size:18px;cursor:pointer}
+.rows-foot{margin-top:6px}
+.check{display:flex;align-items:center;gap:10px;font-weight:600}
+.check input{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
+.box{flex:none;position:relative;width:20px;height:20px;border:2px solid var(--color-ink);border-radius:3px;background:var(--color-mist)}
+.check.disabled{cursor:not-allowed}
+.check.disabled .box{border:2px dashed var(--color-slate)}
+.check-hint{margin:6px 0 0 30px;font-size:13px}
+.block{max-width:860px;margin-top:24px}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <ellipse id="s-txn" rx="32" ry="32" vector-effect="non-scaling-stroke"/>
+    <rect id="s-gc" x="-40" y="-25" width="80" height="50" rx="8" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-ord" points="-35,0 -17.5,-30 17.5,-30 35,0 17.5,30 -17.5,30" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-misc" points="0,-34 34,0 0,34 -34,0" vector-effect="non-scaling-stroke"/>
+  </defs>
+</svg>
+<div class="app">
+  <header class="topbar">
+    <span class="wordmark">TxnWeave</span>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#">Investigation</a>
+      <a href="#" aria-current="page">Documents</a>
+      <a href="#">Settings</a>
+    </nav>
+    <div class="inv">
+      <button class="inv-name" aria-label="Rename investigation">Riverside gift card ring <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg></button>
+      <span class="status">Saved 15:21</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-on-dark">Load</button>
+      <button class="btn btn-on-dark">Save</button>
+      <span class="user-slot"></span>
+    </div>
+  </header>
+  <main class="docs">
+    <aside class="list-pane" aria-label="Document list">
+      <div class="list-head">
+        <div class="list-title">
+          <h1>Documents</h1>
+          <button class="btn btn-primary" aria-haspopup="menu">New document <svg class="chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></button>
+        </div>
+        <input class="search" type="search" autocomplete="off" placeholder="Search documents" aria-label="Search documents">
+        <div class="types" role="group" aria-label="Document types">
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Transaction</label>
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Gift Card</label>
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Online Order</label>
+          <label class="mini"><input type="checkbox" checked><span class="mbox"></span>Misc</label>
+        </div>
+        <div class="selects">
+          <div><label for="status">Status</label><div class="select"><select id="status"><option>All</option><option>Complete</option><option>Incomplete</option></select></div></div>
+          <div><label for="sort">Sort</label><div class="select"><select id="sort"><option>Title A–Z</option><option>Title Z–A</option><option>Date newest</option><option>Date oldest</option></select></div></div>
+        </div>
+        <label class="mini"><input type="checkbox"><span class="mbox"></span>Important only</label>
+        <div class="result"><span>Showing 11 of 11</span><span class="badge badge-inc">2 incomplete</span></div>
+      </div>
+      <ul class="items">
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span><div><div class="item-title">Camera review – Store 014</div><div class="item-meta">Misc · 03-14-2026</div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span><div><div class="item-title">Gift Card …0123</div><div class="item-meta">Gift Card · 03-14-2026 <span class="badge badge-imp">Important</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span><div><div class="item-title">Gift Card …4471</div><div class="item-meta">Gift Card · 03-14-2026</div></div></li>
+        <li class="item inc sel" aria-current="true"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span><div><div class="item-title">Gift Card …8862</div><div class="item-meta">Gift Card · no date <span class="badge badge-inc">Incomplete</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg></span><div><div class="item-title">Online Order 70015529</div><div class="item-meta">Online Order · 03-16-2026 <span class="badge badge-imp">Important</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span><div><div class="item-title">Parking lot pickup</div><div class="item-meta">Misc · 03-17-2026</div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span><div><div class="item-title">Refund at service desk</div><div class="item-meta">Misc · 03-20-2026</div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span><div><div class="item-title">Transaction 00482913 · 03-14-2026 · Store 014 · Reg 002</div><div class="item-meta">Transaction · 03-14-2026 <span class="badge badge-imp">Important</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span><div><div class="item-title">Transaction 00483107 · 03-15-2026 · Store 022 · Reg 001</div><div class="item-meta">Transaction · 03-15-2026 <span class="badge badge-imp">Important</span></div></div></li>
+        <li class="item"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span><div><div class="item-title">Transaction 00491550 · 03-19-2026 · Store 042 · Reg 003</div><div class="item-meta">Transaction · 03-19-2026</div></div></li>
+        <li class="item inc"><span class="icon"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span><div><div class="item-title">Transaction 00495120 · 03-18-2026 · Store 031</div><div class="item-meta">Transaction · 03-18-2026 <span class="badge badge-inc">Incomplete</span></div></div></li>
+      </ul>
+    </aside>
+    <section class="form-pane" aria-label="Document form">
+      <form>
+        <div class="form-head">
+          <div>
+            <div class="kicker">Gift Card <span class="badge badge-inc">Incomplete</span></div>
+            <h2>Gift Card …8862</h2>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button">Save</button>
+          </div>
+        </div>
+        <div class="notice">
+          <p>This is an incomplete node. <strong>Transaction 00491550 · 03-19-2026 · Store 042 · Reg 003</strong> paid with this card, but no Gift Card document exists yet. The known values are filled in. Add the missing fields and save to complete it.</p>
+        </div>
+        <div class="field">
+          <label for="gcn">Gift card number<span class="req">*</span></label>
+          <input id="gcn" class="input wide ring-light" inputmode="numeric" maxlength="24" value="6034000000008862">
+        </div>
+        <h3>Activation</h3>
+        <div class="grid">
+          <div class="field"><label for="a-txn">Transaction number<span class="req">*</span></label><input id="a-txn" class="input err" inputmode="numeric" maxlength="8" value="" aria-invalid="true"><div class="msg">Error: Activation transaction number is required.</div></div>
+          <div class="field"><label for="a-date">Date<span class="req">*</span></label><input id="a-date" class="input err" value="" aria-invalid="true"><div class="msg">Error: Activation date is required (MM-DD-YYYY).</div></div>
+          <div class="field"><label for="a-time">Time<span class="req">*</span></label><input id="a-time" class="input err" value="" aria-invalid="true"><div class="msg">Error: Activation time is required (HH:MM).</div></div>
+          <div class="field"><label for="a-store">Store number</label><input id="a-store" class="input" inputmode="numeric" maxlength="3" value=""></div>
+          <div class="field"><label for="a-amt">Amount</label><input id="a-amt" class="input" value=""><div class="hint">$0.00 to $99,999.99</div></div>
+        </div>
+        <fieldset>
+          <legend>History</legend>
+          <div class="row row-head">
+            <span>Transaction number<span class="req">*</span></span>
+            <span>Date<span class="req">*</span></span>
+            <span>Time<span class="req">*</span></span>
+            <span>Store</span>
+            <span>Amount<span class="hint">+ added to card, − spent from card</span></span>
+            <span></span>
+          </div>
+          <div class="row">
+            <input class="input" aria-label="History 1 transaction number" value="00491550">
+            <input class="input" aria-label="History 1 date" value="03-19-2026">
+            <input class="input" aria-label="History 1 time" value="16:48">
+            <input class="input" aria-label="History 1 store number" value="042">
+            <input class="input" aria-label="History 1 amount" value="-$200.00">
+            <button class="remove" type="button" aria-label="Remove history entry 1">×</button>
+          </div>
+          <div class="rows-foot">
+            <button class="btn btn-secondary" type="button">+ Add history entry</button>
+          </div>
+        </fieldset>
+        <div class="block">
+          <label class="check disabled"><input type="checkbox" disabled aria-disabled="true"><span class="box"></span>Important</label>
+          <p class="check-hint">Save this document to mark it important</p>
+        </div>
+        <div class="block field">
+          <label for="notes">Notes</label>
+          <textarea id="notes" class="input"></textarea>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+</body>
+</html>

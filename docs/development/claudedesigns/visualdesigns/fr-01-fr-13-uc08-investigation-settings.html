@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Investigation settings</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:var(--text-on-light);background:var(--color-mist);scrollbar-color:var(--color-slate) var(--color-ink)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+button,select{font:inherit}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;min-width:1280px}
+.topbar{flex:none;display:flex;align-items:center;gap:20px;height:56px;padding:0 20px;background:var(--color-ink);color:var(--text-on-dark)}
+.wordmark{font-size:20px;font-weight:700;letter-spacing:.02em;margin-right:8px}
+.tabs{display:flex;align-self:stretch}
+.tabs a{display:flex;align-items:center;padding:3px 16px 0;border-bottom:3px solid var(--color-ink);color:var(--text-on-dark);text-decoration:none}
+.tabs a[aria-current="page"]{font-weight:700;border-bottom-color:var(--color-crimson)}
+.inv{display:flex;align-items:center;gap:14px;margin-left:12px}
+.inv-name{display:flex;align-items:center;gap:8px;padding:6px 8px;border:0;border-radius:4px;background:var(--color-ink);color:var(--text-on-dark);font-size:15px;font-weight:600;cursor:pointer}
+.inv-name svg{fill:none;stroke:var(--text-on-dark);stroke-width:1.5}
+.status{font-size:13px}
+.actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.user-slot{width:32px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:0;border-radius:4px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--color-crimson);color:var(--text-on-dark)}
+.btn-secondary{background:var(--color-slate);color:var(--text-on-dark)}
+.btn-on-dark{background:var(--color-mist);color:var(--text-on-light)}
+.btn-danger{background:var(--color-rose);color:var(--text-on-light);border:1px solid var(--color-ink);padding:7px 15px}
+:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.page{flex:1;overflow:auto;background:var(--color-mist)}
+.column{width:720px;margin:0 auto;padding:32px 0 56px}
+.column h1{margin:0 0 4px;font-size:24px}
+.intro{margin:0 0 28px}
+section{padding:22px 0 26px;border-top:1px solid var(--color-ink)}
+section h2{margin:0 0 4px;font-size:18px}
+section > p{margin:0 0 16px}
+.appearance{width:100%;border-collapse:collapse}
+.appearance th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:0 8px 8px;border-bottom:1px solid var(--color-slate)}
+.appearance td{padding:10px 8px;border-bottom:1px solid var(--color-slate);vertical-align:middle}
+.appearance td.type{font-weight:600;width:200px}
+.preview{width:96px}
+.preview svg{display:block;width:60px;height:46px}
+.select{position:relative;width:180px}
+.select select{appearance:none;width:100%;padding:7px 28px 7px 10px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-slate);border-radius:4px}
+.select::after{content:"";position:absolute;right:11px;top:50%;margin-top:-3px;border-left:5px solid var(--color-mist);border-right:5px solid var(--color-mist);border-top:6px solid var(--color-ink);pointer-events:none}
+.select.sw select{padding-left:34px}
+.swatch{position:absolute;left:10px;top:50%;width:16px;height:16px;margin-top:-8px;border:1px solid var(--color-ink);border-radius:3px;pointer-events:none}
+.sw-ink{background:var(--color-ink)}
+.sw-slate{background:var(--color-slate)}
+.sw-mist{background:var(--color-mist)}
+.sw-rose{background:var(--color-rose)}
+.sw-crimson{background:var(--color-crimson)}
+.n-txn,.n-gc,.n-ord,.n-misc{stroke:var(--color-ink);stroke-width:2}
+.n-txn{fill:var(--color-slate)}
+.n-gc{fill:var(--color-crimson)}
+.n-ord{fill:var(--color-ink)}
+.n-misc{fill:var(--color-rose)}
+.imp-line{stroke:var(--color-crimson);stroke-width:4}
+.fill-crimson{fill:var(--color-crimson)}
+.row-imp td{border-bottom:0}
+.buttons{display:flex;gap:10px;margin-top:18px}
+.readonly{display:grid;grid-template-columns:160px 1fr;gap:8px 16px;margin:0 0 18px}
+.readonly dt{font-weight:600}
+.readonly dd{margin:0}
+.hint{font-size:13px}
+.danger-zone{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 18px;border:1px solid var(--color-ink);border-radius:6px}
+.danger-zone p{margin:0}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arrow-crimson" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-crimson" d="M0,0 L10,5 L0,10 z"/></marker>
+    <ellipse id="s-txn" rx="32" ry="32" vector-effect="non-scaling-stroke"/>
+    <rect id="s-gc" x="-40" y="-25" width="80" height="50" rx="8" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-ord" points="-35,0 -17.5,-30 17.5,-30 35,0 17.5,30 -17.5,30" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-star" points="0,-34 8.23,-11.33 32.34,-10.51 13.31,4.33 19.98,27.51 0,14 -19.98,27.51 -13.31,4.33 -32.34,-10.51 -8.23,-11.33" vector-effect="non-scaling-stroke"/>
+  </defs>
+</svg>
+<div class="app">
+  <header class="topbar">
+    <span class="wordmark">TxnWeave</span>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#">Investigation</a>
+      <a href="#">Documents</a>
+      <a href="#" aria-current="page">Settings</a>
+    </nav>
+    <div class="inv">
+      <button class="inv-name" aria-label="Rename investigation">Riverside gift card ring <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg></button>
+      <span class="status">Saved 15:30</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-on-dark">Load</button>
+      <button class="btn btn-on-dark">Save</button>
+      <span class="user-slot"></span>
+    </div>
+  </header>
+  <main class="page">
+    <div class="column">
+      <h1>Investigation settings</h1>
+      <p class="intro">These settings apply to this investigation only and are included when you save it to CSV.</p>
+      <section aria-labelledby="appearance-title">
+        <h2 id="appearance-title">Appearance</h2>
+        <p>Choose how each document type is drawn on the Investigation page and in PNG exports.</p>
+        <form>
+          <table class="appearance">
+            <thead><tr><th>Type</th><th>Preview</th><th>Color</th><th>Shape</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="type">Transaction</td>
+                <td class="preview"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></td>
+                <td><div class="select sw"><span class="swatch sw-slate"></span><select aria-label="Transaction color"><option>Slate</option><option>Ink</option><option>Mist</option><option>Rose</option><option>Crimson</option></select></div></td>
+                <td><div class="select"><select aria-label="Transaction shape"><option>Circle</option><option>Rectangle</option><option>Rounded rectangle</option><option>Triangle</option><option>Diamond</option><option>Hexagon</option><option>Octagon</option><option>Star</option></select></div></td>
+              </tr>
+              <tr>
+                <td class="type">Gift Card</td>
+                <td class="preview"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></td>
+                <td><div class="select sw"><span class="swatch sw-crimson"></span><select aria-label="Gift Card color"><option>Crimson</option><option>Ink</option><option>Slate</option><option>Mist</option><option>Rose</option></select></div></td>
+                <td><div class="select"><select aria-label="Gift Card shape"><option>Rounded rectangle</option><option>Circle</option><option>Rectangle</option><option>Triangle</option><option>Diamond</option><option>Hexagon</option><option>Octagon</option><option>Star</option></select></div></td>
+              </tr>
+              <tr>
+                <td class="type">Online Order</td>
+                <td class="preview"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg></td>
+                <td><div class="select sw"><span class="swatch sw-ink"></span><select aria-label="Online Order color"><option>Ink</option><option>Slate</option><option>Mist</option><option>Rose</option><option>Crimson</option></select></div></td>
+                <td><div class="select"><select aria-label="Online Order shape"><option>Hexagon</option><option>Circle</option><option>Rectangle</option><option>Rounded rectangle</option><option>Triangle</option><option>Diamond</option><option>Octagon</option><option>Star</option></select></div></td>
+              </tr>
+              <tr>
+                <td class="type">Misc</td>
+                <td class="preview"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-star" class="n-misc"/></svg></td>
+                <td><div class="select sw"><span class="swatch sw-rose"></span><select aria-label="Misc color"><option>Rose</option><option>Ink</option><option>Slate</option><option>Mist</option><option>Crimson</option></select></div></td>
+                <td><div class="select"><select aria-label="Misc shape"><option>Star</option><option>Circle</option><option>Rectangle</option><option>Rounded rectangle</option><option>Triangle</option><option>Diamond</option><option>Hexagon</option><option>Octagon</option></select></div></td>
+              </tr>
+              <tr class="row-imp">
+                <td class="type">Important connections</td>
+                <td class="preview"><svg viewBox="-45 -38 90 76" aria-hidden="true"><line class="imp-line" vector-effect="non-scaling-stroke" x1="-40" y1="0" x2="38" y2="0" marker-end="url(#arrow-crimson)"/></svg></td>
+                <td><div class="select sw"><span class="swatch sw-crimson"></span><select aria-label="Important connections color"><option>Crimson</option><option>Ink</option><option>Slate</option></select></div></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="buttons">
+            <button class="btn btn-primary" type="button">Save appearance</button>
+            <button class="btn btn-secondary" type="button">Reset to defaults</button>
+          </div>
+        </form>
+      </section>
+      <section aria-labelledby="inv-title">
+        <h2 id="inv-title">Investigation</h2>
+        <dl class="readonly">
+          <dt>Name</dt><dd>Riverside gift card ring<div class="hint">To rename it, click the name in the top bar.</div></dd>
+          <dt>Contents</dt><dd>9 documents, 2 incomplete nodes</dd>
+          <dt>Last saved to CSV</dt><dd>11-21-2026 at 14:32</dd>
+        </dl>
+        <div class="danger-zone">
+          <p>Permanently delete this investigation and all of its documents from TxnWeave. Save it to CSV first if you need a copy.</p>
+          <button class="btn btn-danger" type="button">Delete investigation</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

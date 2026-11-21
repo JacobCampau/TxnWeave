@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Investigation</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:var(--text-on-light);background:var(--color-mist);scrollbar-color:var(--color-slate) var(--color-ink)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+button,input{font:inherit}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;min-width:1280px}
+.topbar{flex:none;display:flex;align-items:center;gap:20px;height:56px;padding:0 20px;background:var(--color-ink);color:var(--text-on-dark)}
+.wordmark{font-size:20px;font-weight:700;letter-spacing:.02em;margin-right:8px}
+.tabs{display:flex;align-self:stretch}
+.tabs a{display:flex;align-items:center;padding:3px 16px 0;border-bottom:3px solid var(--color-ink);color:var(--text-on-dark);text-decoration:none}
+.tabs a[aria-current="page"]{font-weight:700;border-bottom-color:var(--color-crimson)}
+.inv{display:flex;align-items:center;gap:14px;margin-left:12px}
+.inv-name{display:flex;align-items:center;gap:8px;padding:6px 8px;border:0;border-radius:4px;background:var(--color-ink);color:var(--text-on-dark);font-size:15px;font-weight:600;cursor:pointer}
+.inv-name svg{fill:none;stroke:var(--text-on-dark);stroke-width:1.5}
+.status{font-size:13px}
+.actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.user-slot{width:32px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:0;border-radius:4px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--color-crimson);color:var(--text-on-dark)}
+.btn-secondary{background:var(--color-slate);color:var(--text-on-dark)}
+.btn-on-dark{background:var(--color-mist);color:var(--text-on-light)}
+:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.ring-light{outline:3px solid var(--color-ink);outline-offset:2px}
+.toolbar{flex:none;display:flex;align-items:center;gap:8px;height:52px;padding:0 16px;background:var(--color-slate);color:var(--text-on-dark);border-bottom:1px solid var(--color-ink)}
+.toolbar .btn{padding:6px 12px;font-size:13px}
+.toolbar .btn-primary{box-shadow:0 0 0 2px var(--color-ink)}
+.sep{width:1px;height:28px;background:var(--color-ink);margin:0 6px}
+.spacer{flex:1}
+.graph-stats{font-size:13px;margin-right:10px}
+.tick{flex:none;position:relative;width:14px;height:14px;border:2px solid var(--color-ink);border-radius:2px;background:var(--color-mist)}
+.tick.on{background:var(--color-ink)}
+.tick.on::after{content:"";position:absolute;left:2px;top:-1px;width:4px;height:8px;border:solid var(--color-mist);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.canvas{flex:1;position:relative;overflow:hidden;background:var(--color-mist)}
+.graph{position:absolute;inset:0;width:100%;height:100%}
+.edge{stroke:var(--color-slate);stroke-width:2;fill:none}
+.edge.dashed{stroke-dasharray:7 5}
+.edge.imp{stroke:var(--color-ink);stroke-width:4}
+.fill-slate{fill:var(--color-slate)}
+.fill-ink{fill:var(--color-ink)}
+.elabels rect{fill:var(--color-mist)}
+.elabels text{font-size:10px;text-anchor:middle;fill:var(--text-on-light)}
+.n-txn,.n-gc,.n-ord,.n-misc{stroke:var(--color-ink);stroke-width:2}
+.n-txn{fill:var(--color-slate)}
+.n-gc{fill:var(--color-crimson)}
+.n-ord{fill:var(--color-ink)}
+.n-misc{fill:var(--color-rose)}
+.node text{font-size:12px;text-anchor:middle;fill:var(--text-on-light)}
+.incomplete{opacity:.75}
+.incomplete use{stroke-width:3;stroke-dasharray:6 4}
+.imp-outer{stroke-width:6}
+.imp-inner{fill:none;stroke-width:2}
+.st-slate{stroke:var(--color-slate)}
+.st-crimson{stroke:var(--color-crimson)}
+.st-ink{stroke:var(--color-ink)}
+.backdrop{position:fixed;inset:0;background:var(--color-ink);opacity:.7}
+.dialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:520px;padding:28px 32px;background:var(--color-mist);border:1px solid var(--color-ink);border-radius:6px}
+.dialog h2{margin:0;font-size:22px}
+.lead{margin:6px 0 20px}
+fieldset{margin:0;padding:0;border:0}
+legend{font-weight:700;margin-bottom:10px;padding:0}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.choice{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 12px 14px;border:1px solid var(--color-slate);border-radius:6px;cursor:pointer}
+.choice.on{border:2px solid var(--color-ink);padding:17px 11px 13px}
+.choice input{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
+.choice svg{height:72px}
+.frame{fill:var(--color-mist);stroke:var(--color-ink);stroke-width:2}
+.dot{fill:var(--color-slate)}
+.dot-c{fill:var(--color-crimson);stroke:var(--color-ink);stroke-width:1.5}
+.link{stroke:var(--color-slate);stroke-width:1.5}
+.choice-label{display:flex;align-items:center;gap:8px;font-weight:600}
+.radio{position:relative;width:18px;height:18px;border:2px solid var(--color-ink);border-radius:50%;background:var(--color-mist)}
+.choice.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--color-ink)}
+.file{margin:18px 0 0;font-size:13px}
+.file strong{font-weight:600}
+.dialog-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-slate" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="arrow-imp" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-ink" d="M0,0 L10,5 L0,10 z"/></marker>
+    <ellipse id="s-txn" rx="32" ry="32" vector-effect="non-scaling-stroke"/>
+    <rect id="s-gc" x="-40" y="-25" width="80" height="50" rx="8" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-ord" points="-35,0 -17.5,-30 17.5,-30 35,0 17.5,30 -17.5,30" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-misc" points="0,-34 34,0 0,34 -34,0" vector-effect="non-scaling-stroke"/>
+  </defs>
+</svg>
+<div class="app">
+  <header class="topbar">
+    <span class="wordmark">TxnWeave</span>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#" aria-current="page">Investigation</a>
+      <a href="#">Documents</a>
+      <a href="#">Settings</a>
+    </nav>
+    <div class="inv">
+      <button class="inv-name" aria-label="Rename investigation">Riverside gift card ring <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg></button>
+      <span class="status">Saved 15:06</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-on-dark">Load</button>
+      <button class="btn btn-on-dark">Save</button>
+      <span class="user-slot"></span>
+    </div>
+  </header>
+  <div class="toolbar" role="toolbar" aria-label="Graph tools">
+    <button class="btn btn-on-dark">Fit to screen</button>
+    <button class="btn btn-on-dark">Zoom in</button>
+    <button class="btn btn-on-dark">Zoom out</button>
+    <button class="btn btn-on-dark">Re-layout</button>
+    <span class="sep"></span>
+    <button class="btn btn-on-dark" aria-pressed="true"><span class="tick on"></span>Edge labels</button>
+    <button class="btn btn-on-dark" aria-pressed="false"><span class="tick"></span>Legend</button>
+    <span class="spacer"></span>
+    <span class="graph-stats">11 nodes · 10 connections · 2 incomplete</span>
+    <button class="btn btn-primary">Export PNG</button>
+  </div>
+  <main class="canvas">
+    <svg class="graph" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Investigation graph, 11 nodes">
+      <g>
+        <line class="edge imp" x1="290.4" y1="374.8" x2="454.4" y2="292.9" marker-end="url(#arrow-imp)"/>
+        <line class="edge" x1="289.9" y1="406.2" x2="457.4" y2="496.9" marker-end="url(#arrow)"/>
+        <line class="edge imp" x1="541.9" y1="252.7" x2="754.9" y2="164.5" marker-end="url(#arrow-imp)"/>
+        <line class="edge imp" x1="541.8" y1="288.7" x2="754.4" y2="384.0" marker-end="url(#arrow-imp)"/>
+        <line class="edge" x1="541.9" y1="502.7" x2="753.7" y2="415.0" marker-end="url(#arrow)"/>
+        <line class="edge" x1="458.1" y1="255.3" x2="328.0" y2="209.8" marker-end="url(#arrow)"/>
+        <line class="edge dashed" x1="458.2" y1="542.6" x2="290.8" y2="633.3" marker-end="url(#arrow)"/>
+        <line class="edge" x1="116" y1="390" x2="222" y2="390" marker-end="url(#arrow)"/>
+        <line class="edge" x1="1024" y1="400" x2="830" y2="400" marker-end="url(#arrow)"/>
+        <line class="edge dashed" x1="862" y1="650" x2="1025" y2="650" marker-end="url(#arrow)"/>
+      </g>
+      <g class="elabels">
+        <g transform="translate(374 333)"><rect x="-25" y="-8" width="50" height="15"/><text y="3.5">activated</text></g>
+        <g transform="translate(374 452)"><rect x="-25" y="-8" width="50" height="15"/><text y="3.5">activated</text></g>
+        <g transform="translate(650 208)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(650 337)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(650 458)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(393 233)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(374 588)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+        <g transform="translate(170 390)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">related</text></g>
+        <g transform="translate(926 400)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">related</text></g>
+        <g transform="translate(944 650)"><rect x="-21" y="-8" width="42" height="15"/><text y="3.5">used in</text></g>
+      </g>
+      <g>
+        <g class="node" transform="translate(80 390)"><use href="#s-misc" class="n-misc"/><text y="51">Camera review – Store 014</text></g>
+        <g class="node" transform="translate(300 200)"><use href="#s-misc" class="n-misc"/><text y="51">Refund at service desk</text></g>
+        <g class="node" transform="translate(260 390)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="52">TXN 00482913</text></g>
+        <g class="node" transform="translate(500 270)"><use href="#s-gc" class="n-gc imp-outer"/><use href="#s-gc" class="imp-inner st-crimson"/><text y="44">GC …0123</text></g>
+        <g class="node" transform="translate(500 520)"><use href="#s-gc" class="n-gc"/><text y="42">GC …4471</text></g>
+        <g class="node" transform="translate(790 150)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="52">TXN 00483107</text></g>
+        <g class="node" transform="translate(790 400)"><use href="#s-ord" class="n-ord imp-outer"/><use href="#s-ord" class="imp-inner st-ink"/><text y="49">ORD 70015529</text></g>
+        <g class="node" transform="translate(1060 400)"><use href="#s-misc" class="n-misc"/><text y="51">Parking lot pickup</text></g>
+        <g class="node incomplete" transform="translate(260 650)"><use href="#s-txn" class="n-txn"/><text y="50">TXN 00495120 (incomplete)</text></g>
+        <g class="node incomplete" transform="translate(820 650)"><use href="#s-gc" class="n-gc"/><text y="42">GC …8862 (incomplete)</text></g>
+        <g class="node" transform="translate(1060 650)"><use href="#s-txn" class="n-txn"/><text y="50">TXN 00491550</text></g>
+      </g>
+    </svg>
+  </main>
+</div>
+<div class="backdrop"></div>
+<section class="dialog" role="dialog" aria-modal="true" aria-labelledby="export-title">
+  <h2 id="export-title">Export graph as PNG</h2>
+  <p class="lead">The whole graph is scaled to fill the image, with the same colors and shapes as on screen.</p>
+  <form>
+    <fieldset>
+      <legend>Orientation</legend>
+      <div class="choices">
+        <label class="choice on ring-light">
+          <input type="radio" name="orientation" value="landscape" checked>
+          <svg viewBox="0 0 110 76" aria-hidden="true"><rect class="frame" x="3" y="3" width="104" height="70" rx="3"/><line class="link" x1="30" y1="40" x2="55" y2="26"/><line class="link" x1="55" y1="26" x2="82" y2="22"/><line class="link" x1="55" y1="26" x2="80" y2="50"/><circle class="dot" cx="30" cy="40" r="7"/><rect class="dot-c" x="47" y="21" width="16" height="10" rx="2"/><circle class="dot" cx="82" cy="22" r="6"/><circle class="dot" cx="80" cy="50" r="6"/></svg>
+          <span class="choice-label"><span class="radio"></span>Landscape</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="orientation" value="portrait">
+          <svg viewBox="0 0 76 76" aria-hidden="true"><rect class="frame" x="14" y="3" width="48" height="70" rx="3"/><line class="link" x1="30" y1="20" x2="38" y2="38"/><line class="link" x1="38" y1="38" x2="48" y2="56"/><line class="link" x1="38" y1="38" x2="28" y2="58"/><circle class="dot" cx="30" cy="20" r="6"/><rect class="dot-c" x="30" y="33" width="16" height="10" rx="2"/><circle class="dot" cx="48" cy="56" r="5"/><circle class="dot" cx="28" cy="58" r="5"/></svg>
+          <span class="choice-label"><span class="radio"></span>Portrait</span>
+        </label>
+      </div>
+    </fieldset>
+    <p class="file">File name: <strong>Riverside gift card ring-graph.png</strong></p>
+    <div class="dialog-foot">
+      <button class="btn btn-secondary" type="button">Cancel</button>
+      <button class="btn btn-primary" type="button">Export</button>
+    </div>
+  </form>
+</section>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TxnWeave · Investigation</title>
+<style>
+:root{--color-ink:#131313;--color-slate:#394249;--color-mist:#D2CDCB;--color-rose:#D26D6F;--color-crimson:#C11E20;--text-on-dark:#FFFFFF;--text-on-light:#000000}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:var(--text-on-light);background:var(--color-mist);scrollbar-color:var(--color-slate) var(--color-ink)}
+::selection{background:var(--color-crimson);color:var(--text-on-dark)}
+button,input,select,textarea{font:inherit}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+:focus-visible{outline:3px solid var(--color-ink);outline-offset:2px}
+.app{display:flex;height:100vh;min-width:1280px}
+.rail{flex:none;width:84px;display:flex;flex-direction:column;align-items:stretch;background:var(--color-ink);color:var(--text-on-dark)}
+.rail :focus-visible{outline-color:var(--color-mist);outline-offset:-3px}
+.mark{display:grid;place-items:center;height:64px;font-size:14px;font-weight:800;letter-spacing:.02em}
+.rail nav,.rail-foot{display:flex;flex-direction:column}
+.rail a,.rail button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:0;border-left:3px solid var(--color-ink);background:var(--color-ink);color:var(--text-on-dark);font-size:12px;text-decoration:none;cursor:pointer}
+.rail a[aria-current="page"]{border-left-color:var(--color-crimson);font-weight:700}
+.rail svg{width:24px;height:24px;fill:none;stroke:var(--text-on-dark);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail-foot{margin-top:auto;padding-bottom:10px;border-top:1px solid var(--color-slate)}
+.user-slot{height:44px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.page-head{flex:none;display:flex;align-items:center;gap:16px;height:64px;padding:0 20px;border-bottom:1px solid var(--color-slate);background:var(--color-mist)}
+.inv-name{display:flex;align-items:center;gap:8px;padding:4px 8px;border:0;border-radius:4px;background:var(--color-mist);color:var(--text-on-light);font-size:20px;font-weight:700;cursor:pointer}
+.inv-name svg{fill:none;stroke:var(--text-on-light);stroke-width:1.5}
+.status{font-size:13px}
+.spacer{flex:1}
+.stats{font-size:13px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:0;border-radius:4px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--color-crimson);color:var(--text-on-dark)}
+.btn-on-dark{background:var(--color-mist);color:var(--text-on-light)}
+.body{flex:1;min-height:0;display:flex}
+.panel{flex:none;display:flex;flex-direction:column;overflow:auto;background:var(--color-slate);color:var(--text-on-dark)}
+.panel :focus-visible{outline-color:var(--color-mist)}
+.panel-left{width:260px;border-right:1px solid var(--color-ink)}
+.panel-right{width:360px;border-left:1px solid var(--color-ink)}
+.ptitle{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 12px 16px;border-bottom:1px solid var(--color-ink)}
+.ptitle h2{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.collapse{width:28px;height:28px;border:0;border-radius:4px;background:var(--color-mist);color:var(--text-on-light);font-size:15px;font-weight:700;cursor:pointer}
+.sect{padding:12px 16px 14px;border-bottom:1px solid var(--color-ink)}
+.sect h3{display:flex;justify-content:space-between;margin:0 0 8px;font-size:13px}
+.legend{list-style:none;margin:0;padding:8px 10px;display:grid;gap:3px;background:var(--color-mist);color:var(--text-on-light);border:1px solid var(--color-ink);border-radius:6px}
+.legend li{display:flex;align-items:center;gap:8px;font-size:12px}
+.legend svg{flex:none;width:34px;height:24px}
+.jump{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.jump button{width:100%;display:flex;align-items:center;gap:9px;padding:5px 8px;border:0;border-radius:4px;background:var(--color-ink);color:var(--text-on-dark);font-size:13px;text-align:left;cursor:pointer}
+.jump .inc{box-shadow:inset 4px 0 0 var(--color-rose)}
+.chip{flex:none;display:grid;place-items:center;width:26px;height:22px;border-radius:3px;background:var(--color-mist)}
+.chip svg{width:22px;height:18px}
+.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700}
+.badge-inc{background:var(--color-rose);color:var(--text-on-light)}
+.badge-imp{background:var(--color-ink);color:var(--text-on-dark);border:1px solid var(--color-mist)}
+.canvas{flex:1;min-width:0;position:relative;overflow:hidden;background:var(--color-mist)}
+.graph{position:absolute;inset:0;width:100%;height:100%}
+.tools{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--color-slate);border:1px solid var(--color-ink);border-radius:8px}
+.tools :focus-visible{outline-color:var(--color-mist)}
+.tool{display:flex;flex-direction:column;align-items:center;gap:2px;width:62px;padding:6px 2px 5px;border:0;border-radius:5px;background:var(--color-mist);color:var(--text-on-light);font-size:11px;font-weight:600;cursor:pointer}
+.tool svg{width:18px;height:18px;fill:none;stroke:var(--text-on-light);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tool[aria-pressed="false"]{border:1px dashed var(--color-ink)}
+.tsep{height:1px;background:var(--color-ink);margin:2px 0}
+.edge{stroke:var(--color-slate);stroke-width:2;fill:none}
+.edge.dashed{stroke-dasharray:7 5}
+.edge.imp{stroke:var(--color-ink);stroke-width:4}
+.fill-slate{fill:var(--color-slate)}
+.fill-ink{fill:var(--color-ink)}
+.n-txn,.n-gc,.n-ord,.n-misc{stroke:var(--color-ink);stroke-width:2}
+.n-txn{fill:var(--color-slate)}
+.n-gc{fill:var(--color-crimson)}
+.n-ord{fill:var(--color-ink)}
+.n-misc{fill:var(--color-rose)}
+.node text{font-size:19px;text-anchor:middle;fill:var(--text-on-light)}
+.incomplete{opacity:.75}
+.incomplete use{stroke-width:3;stroke-dasharray:6 4}
+.imp-outer{stroke-width:6}
+.imp-inner{fill:none;stroke-width:2}
+.st-slate{stroke:var(--color-slate)}
+.st-crimson{stroke:var(--color-crimson)}
+.st-ink{stroke:var(--color-ink)}
+.sel-ring{fill:var(--color-crimson)}
+.imp-line{stroke:var(--color-ink);stroke-width:4}
+.details{padding:14px 18px 20px}
+.kicker{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.details h2{margin:2px 0 0;font-size:20px}
+.details h3{margin:16px 0 8px;padding-top:14px;border-top:1px solid var(--color-ink);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.fields{display:grid;grid-template-columns:130px 1fr;gap:5px 10px;margin:14px 0 0;font-size:13px}
+.fields dt{font-weight:600}
+.fields dd{margin:0}
+.mono{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.hist{width:100%;border-collapse:collapse;font-size:13px}
+.hist th,.hist td{text-align:left;padding:4px;border-bottom:1px solid var(--color-ink)}
+.hist .amt{text-align:right}
+.check{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}
+.check input{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
+.box{flex:none;position:relative;width:20px;height:20px;border:2px solid var(--color-ink);border-radius:3px;background:var(--color-mist)}
+.check input:checked+.box::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--color-ink);border-width:0 3px 3px 0;transform:rotate(45deg)}
+.kind{margin-left:auto;font-size:12px}
+.foot{margin-top:18px}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-slate" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="arrow-imp" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path class="fill-ink" d="M0,0 L10,5 L0,10 z"/></marker>
+    <ellipse id="s-txn" rx="32" ry="32" vector-effect="non-scaling-stroke"/>
+    <rect id="s-gc" x="-40" y="-25" width="80" height="50" rx="8" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-ord" points="-35,0 -17.5,-30 17.5,-30 35,0 17.5,30 -17.5,30" vector-effect="non-scaling-stroke"/>
+    <polygon id="s-misc" points="0,-34 34,0 0,34 -34,0" vector-effect="non-scaling-stroke"/>
+  </defs>
+</svg>
+<div class="app">
+  <aside class="rail" aria-label="App">
+    <div class="mark">TxnWeave</div>
+    <nav aria-label="Pages">
+      <a href="#" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.5"/><circle cx="18" cy="5" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M7.3 10.8l8.4-4.6M7.3 13.2l8.4 4.6"/></svg>Investigation</a>
+      <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.5h8l4.5 4.5v14.5H6z"/><path d="M14 2.5V7h4.5M9 12h6M9 16h6"/></svg>Documents</a>
+      <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Settings</a>
+    </nav>
+    <div class="rail-foot">
+      <button><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 15v5h16v-5"/></svg>Load</button>
+      <button><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4 15v5h16v-5"/></svg>Save</button>
+      <div class="user-slot"></div>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="page-head">
+      <button class="inv-name" aria-label="Rename investigation">Riverside gift card ring <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg></button>
+      <span class="status">Saved 15:06</span>
+      <span class="spacer"></span>
+      <span class="stats">11 nodes · 10 connections · 2 incomplete</span>
+      <button class="btn btn-primary">Export PNG</button>
+    </header>
+    <div class="body">
+      <aside class="panel panel-left" aria-label="Overview">
+        <div class="ptitle"><h2>Overview</h2><button class="collapse" aria-label="Collapse overview" aria-expanded="true">‹</button></div>
+        <section class="sect">
+          <h3>Legend</h3>
+          <ul class="legend">
+            <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg>Transaction</li>
+            <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg>Gift Card</li>
+            <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg>Online Order</li>
+            <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg>Misc</li>
+            <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><g class="incomplete"><use href="#s-txn" class="n-txn"/></g></svg>Incomplete node</li>
+            <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/></svg>Important node</li>
+            <li><svg viewBox="-55 -40 110 80" aria-hidden="true"><line class="imp-line" vector-effect="non-scaling-stroke" x1="-48" y1="0" x2="48" y2="0"/></svg>Important connection</li>
+          </ul>
+        </section>
+        <section class="sect">
+          <h3>Incomplete nodes <span class="badge badge-inc">2</span></h3>
+          <ul class="jump">
+            <li><button class="inc"><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>TXN 00495120</button></li>
+            <li><button class="inc"><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span>GC …8862</button></li>
+          </ul>
+        </section>
+        <section class="sect">
+          <h3>Important nodes <span class="badge badge-imp">4</span></h3>
+          <ul class="jump">
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>TXN 00482913</button></li>
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-gc" class="n-gc"/></svg></span>GC …0123</button></li>
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>TXN 00483107</button></li>
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg></span>ORD 70015529</button></li>
+          </ul>
+        </section>
+      </aside>
+      <main class="canvas">
+        <svg class="graph" viewBox="-60 110 1240 620" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Investigation graph, 11 nodes, Gift Card ending 0123 selected">
+          <g>
+            <line class="edge imp" x1="290.4" y1="374.8" x2="451.1" y2="294.5" marker-end="url(#arrow-imp)"/>
+            <line class="edge" x1="289.9" y1="406.2" x2="457.4" y2="496.9" marker-end="url(#arrow)"/>
+            <line class="edge imp" x1="541.9" y1="252.7" x2="754.9" y2="164.5" marker-end="url(#arrow-imp)"/>
+            <line class="edge imp" x1="541.8" y1="288.7" x2="754.4" y2="384.0" marker-end="url(#arrow-imp)"/>
+            <line class="edge" x1="541.9" y1="502.7" x2="753.7" y2="415.0" marker-end="url(#arrow)"/>
+            <line class="edge" x1="458.1" y1="255.3" x2="328.0" y2="209.8" marker-end="url(#arrow)"/>
+            <line class="edge dashed" x1="458.2" y1="542.6" x2="290.8" y2="633.3" marker-end="url(#arrow)"/>
+            <line class="edge" x1="116" y1="390" x2="222" y2="390" marker-end="url(#arrow)"/>
+            <line class="edge" x1="1024" y1="400" x2="830" y2="400" marker-end="url(#arrow)"/>
+            <line class="edge dashed" x1="862" y1="650" x2="1025" y2="650" marker-end="url(#arrow)"/>
+          </g>
+          <g>
+            <g class="node" transform="translate(80 390)"><use href="#s-misc" class="n-misc"/><text y="58">Camera review – Store 014</text></g>
+            <g class="node" transform="translate(300 200)"><use href="#s-misc" class="n-misc"/><text y="58">Refund at service desk</text></g>
+            <g class="node" transform="translate(260 390)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="59">TXN 00482913</text></g>
+            <g class="node" transform="translate(500 270)"><rect class="sel-ring" x="-49" y="-34" width="98" height="68" rx="13"/><use href="#s-gc" class="n-gc imp-outer"/><use href="#s-gc" class="imp-inner st-crimson"/><text y="59">GC …0123</text></g>
+            <g class="node" transform="translate(500 520)"><use href="#s-gc" class="n-gc"/><text y="49">GC …4471</text></g>
+            <g class="node" transform="translate(790 150)"><use href="#s-txn" class="n-txn imp-outer"/><use href="#s-txn" class="imp-inner st-slate"/><text y="59">TXN 00483107</text></g>
+            <g class="node" transform="translate(790 400)"><use href="#s-ord" class="n-ord imp-outer"/><use href="#s-ord" class="imp-inner st-ink"/><text y="56">ORD 70015529</text></g>
+            <g class="node" transform="translate(1060 400)"><use href="#s-misc" class="n-misc"/><text y="58">Parking lot pickup</text></g>
+            <g class="node incomplete" transform="translate(260 650)"><use href="#s-txn" class="n-txn"/><text y="57">TXN 00495120 (incomplete)</text></g>
+            <g class="node incomplete" transform="translate(820 650)"><use href="#s-gc" class="n-gc"/><text y="49">GC …8862 (incomplete)</text></g>
+            <g class="node" transform="translate(1060 650)"><use href="#s-txn" class="n-txn"/><text y="57">TXN 00491550</text></g>
+          </g>
+        </svg>
+        <div class="tools" role="toolbar" aria-label="Graph tools" aria-orientation="vertical">
+          <button class="tool"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6V2h4M12 2h4v4M16 12v4h-4M6 16H2v-4"/></svg>Fit</button>
+          <button class="tool"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 3v12M3 9h12"/></svg>Zoom in</button>
+          <button class="tool"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9h12"/></svg>Zoom out</button>
+          <button class="tool"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M15 9a6 6 0 1 1-1.8-4.3M14 1.5v3.5h-3.5"/></svg>Re-layout</button>
+          <span class="tsep"></span>
+          <button class="tool" aria-pressed="false"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 15L16 3"/><rect x="5" y="6" width="8" height="5" rx="1"/></svg>Edge labels</button>
+        </div>
+      </main>
+      <aside class="panel panel-right" aria-label="Node details">
+        <div class="ptitle"><h2>Details</h2><button class="collapse" aria-label="Collapse details" aria-expanded="true">›</button></div>
+        <div class="details">
+          <div class="kicker">Gift Card</div>
+          <h2>Gift Card …0123</h2>
+          <dl class="fields">
+            <dt>Gift card number</dt><dd class="mono">6034 0000 0000 0123</dd>
+            <dt>Activated in</dt><dd>Transaction 00482913</dd>
+            <dt>Activation date</dt><dd>03-14-2026 at 10:42</dd>
+            <dt>Activation store</dt><dd>014</dd>
+            <dt>Activation amount</dt><dd>$500.00</dd>
+          </dl>
+          <h3>History</h3>
+          <table class="hist">
+            <thead><tr><th>Transaction</th><th>Date</th><th>Store</th><th class="amt">Amount</th></tr></thead>
+            <tbody><tr><td>00483107</td><td>03-15-2026 13:05</td><td>022</td><td class="amt">-$350.00</td></tr></tbody>
+          </table>
+          <h3>Notes</h3>
+          <div>One of two $500 cards bought with the same credit card at Store 014. Drained within 48 hours at Store 022 and online.</div>
+          <h3>Importance</h3>
+          <label class="check"><input type="checkbox" checked><span class="box"></span>Important</label>
+          <h3>Connected nodes</h3>
+          <ul class="jump">
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>TXN 00482913<span class="kind">activated</span></button></li>
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-txn" class="n-txn"/></svg></span>TXN 00483107<span class="kind">used in</span></button></li>
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-ord" class="n-ord"/></svg></span>ORD 70015529<span class="kind">used in</span></button></li>
+            <li><button><span class="chip"><svg viewBox="-45 -38 90 76" aria-hidden="true"><use href="#s-misc" class="n-misc"/></svg></span>Refund at service desk<span class="kind">used in</span></button></li>
+          </ul>
+          <div class="foot"><button class="btn btn-on-dark">Edit in Documents</button></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</body>
+</html>
