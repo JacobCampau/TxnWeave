@@ -32,7 +32,7 @@
 ## Functional requirements
 | ID | Requirement (short) | Wave | Coverage | Where |
 |---|---|---|---|---|
-| FR-01 | Create, edit, open and delete investigations | 1 | Covered | 1.1, UI-1 (create); D3, UI-1 (open: Resume, Load CSV); D30, BD32 (rename); D29, 1.6 (delete) |
+| FR-01 | Create, edit, open and delete investigations | 1 | Covered | 1.1, UI-1 (create); D3, D34, UI-1, UI-30 (open: Resume, Load CSV); D30, BD32 (rename); D29, 1.6 (delete) |
 | FR-02 | Data shown as an interactive graph | 1 | Covered | D7, B12, [investigation-page](../ui/investigation-page.md) |
 | FR-03 | Transaction form | 1 | Covered. The design also requires a store number (BD26) | [data-model](../backend/data-model.md), [documents-page](../ui/documents-page.md) |
 | FR-04 | Gift card form | 1 | Covered | same |
@@ -48,11 +48,11 @@
 | FR-14 | Mark nodes and relationships as important | 2 | Covered. Nodes are marked; a relationship is important when both of its ends are | BD27, BD28, D31, D32 |
 | FR-15 | Identify and highlight a path connecting selected nodes | 2 | Covered **through importance**. There is no path finding (see below) | BD27, D31 |
 | FR-16 | Search graph elements by identifier or text | 2 | Covered **on the Documents page**. No search on the graph | D33, UI-28 |
-| FR-17 | Export the graph as an image | 2 | Covered | UI-7 |
+| FR-17 | Export the graph as an image | 2 | Covered | UI-7, D36, UI-32 |
 | FR-18 | Autosave | 2 | Covered | B2 |
-| FR-19 | Identify invalid import data | 2 | Covered | 5.2, 5.7, 5.9, UI-17 |
+| FR-19 | Identify invalid import data | 2 | Covered | 5.2, 5.7, 5.9, BD34, D35, UI-17, UI-31 |
 | FR-20 | Workspace grows as nodes are added or moved | 2 | Covered: Cytoscape's canvas has no fixed size, plus Fit and pan | D8, UI-7 |
-| FR-21 | Legend for element types and meanings | 2 | Covered for node types, incomplete style and important style. Edge kinds would come from suggestion S-1 | Legend, [investigation-page](../ui/investigation-page.md) |
+| FR-21 | Legend for element types and meanings | 2 | Covered for node types, incomplete style and important style. Edge kinds would come from suggestion S-1 | Legend (D37), [investigation-page](../ui/investigation-page.md) |
 | FR-22 | Location and reason for each import error | Future | Already met by `ImportReport` | [csv-save-load](../backend/csv-save-load.md) |
 | FR-23 | User authentication | Future | IAM design still to come | — |
 | FR-24 | Restrict investigations by permissions | Future | IAM | — |

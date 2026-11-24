@@ -1,6 +1,6 @@
 # Backend: API (investigations and documents)
 
-- **Status:** Agreed (from `backend-graphing-design.md` v3). Updated 2026-11-17 (user decisions): BD28 importance toggle, BD31 settings endpoints, BD32 rename rules.
+- **Status:** Agreed (from `backend-graphing-design.md` v3). Updated 2026-11-17 (user decisions): BD28 importance toggle, BD31 settings endpoints, BD32 rename rules. Updated 2026-11-23: import 422 `not_a_txnweave_file` (BD34); Resume is looked up on every open (D34).
 - **Scope:** The full HTTP surface under `/api`: the endpoint table (including graph, export and import rows, whose details live in their own docs), the error body, the Investigation entity and `InvestigationOut`, investigation behavior (create, list, resume, delete, retention), document create/update/delete rules and status codes, JSON examples, and the sensitive-data handling rules for requests, responses and logs.
 - **Master plan:** [../master-plan.md](../master-plan.md)
 - **Related:** [data-model.md](data-model.md) (`DocumentIn` / `DocumentOut` fields), [persistence.md](persistence.md) (commits, cascades, uniqueness check, BD7 retention), [relationship-resolution.md](relationship-resolution.md) (placeholders, `referenced_by`, promotion), [graph-output.md](graph-output.md) (`GraphOut`), [csv-save-load.md](csv-save-load.md) (export/import), [../ui/app-shell.md](../ui/app-shell.md) (StartDialog, Save/Load)
@@ -49,13 +49,13 @@ All paths are prefixed with `/api`. The app error body is `{"detail": {"code": "
 | DELETE | `/investigations/{iid}/settings` | — | `InvestigationSettingsOut` (defaults) | 200, 404 |
 | GET | `/investigations/{iid}/graph` | — | `GraphOut` ([graph-output.md](graph-output.md)) | 200, 404 |
 | GET | `/investigations/{iid}/export.csv` | — | `text/csv` attachment ([csv-save-load.md](csv-save-load.md)) | 200, 404 |
-| POST | `/investigations/import?dry_run=` | multipart `file` | dry run: `ImportReport`. Otherwise: `{investigation, report}` | 200 (dry run), 201, 413, 422 |
+| POST | `/investigations/import?dry_run=` | multipart `file` | dry run: `ImportReport`. Otherwise: `{investigation, report}` | 200 (dry run), 201, 413, 422 (including `not_a_txnweave_file`, BD34) |
 
 ## Behavior
 
 ### 1. Investigations
 1.1 `POST /investigations` creates an empty investigation. This is "New investigation".
-1.2 `GET /investigations` lists investigations, newest `updated_at` first. "Resume last session" uses the first item, and is shown only when the list is non-empty.
+1.2 `GET /investigations` lists investigations, newest `updated_at` first. "Resume last session" uses the first item, and is shown only when the list is non-empty. The frontend calls this on every app open and reload, because nothing about the session is stored in the browser (D34).
 1.3 Deleting an investigation cascades to all its documents.
 1.4 Retention follows BD7 ([persistence.md](persistence.md)). The frontend calls `DELETE /investigations/{old_id}` after New or Load when the old investigation was exported or the user chose Discard.
 1.5 Rename follows BD32.

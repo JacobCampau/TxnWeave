@@ -57,7 +57,29 @@ Traceability is in [project/requirements.md](project/requirements.md) and [proje
 | F13 | Interview Q2: transactions linked to earlier transactions | R1 to R6 only | Gap | Defer. Possible R7 `related` |
 | F14 | Interview Q3: personal information | No such fields | Gap, sensitive | Notes only until the IAM design |
 | F15 | Interview Q6: one person's actions | No person entity | Gap | Defer. Workaround: one Misc document per person |
+| F20 | `Starting An Investigation.drawio`: "Load last investigation from cookies" | D34, B2 (server autosave; nothing stored in the browser) | Diagram wording only | Relabel the diagram box "Load last investigation from autosave" next time the diagram is edited |
+| F21 | `visualdesigns/fr-11-fr-19-uc05-load-report-dialog.html` and `visualdesigns/index.html` | UI-17 (button now "Load documents"), BD34 (markerless files rejected) | Mockups out of date | Ask the ui-designer agent to refresh them. The design docs win |
 | F19 | `CS420_Project_Concept.pdf` | — | **Unread.** The pages render blank, and the text is in compressed font streams. Only the outline and link targets could be read | Re-run the comparison once the text is available |
+
+## Changelog: activity diagrams (2026-11-23)
+Design docs aligned with the user's two UML activity diagrams, `docs/development/drawioactivitydiagrams/Starting An Investigation.drawio` and `docs/development/drawioactivitydiagrams/Investigation.drawio`, which are Figures 1 and 2 in `docs/development/CS420_Project_Design.pdf` (sections 3.1 and 3.2; mockups in Figures 3 to 9). The user answered every question (Q1 to Q8 and group C), relayed by the coordinating agent.
+- **New decisions:**
+  - D34 ([ui/app-shell.md](ui/app-shell.md)): StartDialog on every open and reload. Nothing is stored in the browser. The diagram's "cookies" means the server autosave (B2). The "missing information?" check applies only to CSV loads. Land on `/` after New, Resume or Load.
+  - D35 (app-shell): CSV load checks in diagram order: filetype, then format marker, then problems. The first two are hard errors, shown inline in StartDialog or as a toast from the TopBar.
+  - BD34 ([backend/csv-save-load.md](backend/csv-save-load.md)): a file without the validity marker gets 422 `not_a_txnweave_file`. Marker matching tolerates a BOM and trailing blank cells.
+  - D36 ([ui/investigation-page.md](ui/investigation-page.md)): live export orientation preview (16:9 at 1920×1080, 9:16 at 1080×1920). Landscape is preselected. Cancel restores positions.
+  - D37 (investigation-page): the legend is a checkbox, off by default, shown bottom-left, and in the PNG only when it's on.
+- **New behaviors:** UI-30 (Resume row details), UI-31 (Load CSV flow), UI-32 (export preview), UI-33 (legend), UI-34 (Save disabled with no changes; always enabled on incomplete documents), UI-35 (delete details: no Delete on incomplete documents, a "no references" message, nothing selected afterwards). There's also a note in documents-page mapping the diagram's "create incomplete node" step to derived placeholders (B4).
+- **Changed agreed text:**
+  - **G4 narrowed** (master plan): best-effort loading now applies only to files that have the marker. Markerless files are rejected. Before, 5.2 and UI-17 offered "Proceed anyway" on them.
+  - csv-save-load 5.2, 5.7, 5.8: the `not_a_txnweave_file` problem code is removed from the `ImportReport` and becomes the 422 code. `ImportReport.valid_marker` is removed.
+  - UI-1: StartDialog on every open. UI-17: the "Proceed anyway" button is renamed "Load documents", and Cancel returns to where the load started. UI-7: points to D36 and D37.
+  - api.md: import 422 code and 1.2 note.
+  - Both build plans: UI steps 8, 8a (Wave 1) and 10 (Wave 2); backend step 9 (Wave 1).
+  - traceability.md and requirements.md: new rows and citations.
+  - The master-plan conventions line now gives the ID ranges as BD1 to BD34, D1 to D37, UI-1 to UI-35, behavior sections 1.x to 7.x (section 7 already existed) and F1 to F21.
+- **Left out on purpose:** the diagram's "cookies" (see D34 and F20), and storing incomplete nodes (B4). Re-layout, Settings, Rename, TopBar Save/Load, list selection and the unsaved-change prompts are not in the diagrams (PDF 3.2 says minor functions were omitted), and they stay in the design.
+- **New follow-ups:** F20, F21.
 
 ## Changelog: course-requirement decisions (2026-11-17)
 User decisions on the course-PDF follow-ups, applied as agreed design:

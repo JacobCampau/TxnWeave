@@ -1,6 +1,6 @@
 # Backend: CSV Save and Load
 
-- **Status:** Agreed (from `backend-graphing-design.md` v3, behavior section 5 and the `ImportReport` interface). Updated 2026-11-17 (user decisions): BD33 (`important` column and optional `settings` section).
+- **Status:** Agreed (from `backend-graphing-design.md` v3, behavior section 5 and the `ImportReport` interface). Updated 2026-11-17 (user decisions): BD33 (`important` column and optional `settings` section). Updated 2026-11-23 (user decision, Starting An Investigation diagram): BD34, a file without the validity marker is rejected with 422; best-effort parsing of markerless files is dropped.
 - **Scope:** `services/csv_service.py`, `GET .../export.csv` and `POST /investigations/import`: the single sectioned CSV file, the validity marker, `ref` / `parent_ref` row joins, cell writing rules (including formula escaping and money), import parsing, the two-step dry-run import, skipped-row rules, the `ImportReport`, and which conditions return an error status. The full column layout is deferred to a future CSV design.
 - **Master plan:** [../master-plan.md](../master-plan.md) (B6 digit strings, B7 cents, B8 date formats, BD25 signs)
 - **Related:** [data-model.md](data-model.md) (rows are validated against `*In` models), [relationship-resolution.md](relationship-resolution.md) (references re-resolve on load), [api.md](api.md) (endpoint rows, B16 `last_exported_at`), [../ui/app-shell.md](../ui/app-shell.md) (Save, Load, LoadReportDialog)
@@ -17,6 +17,7 @@
 | BD11 | CSV amount cells are written as plain signed decimals (`-25.50`, `1250.00`) under a header ending in `($)`, are **never** formula-escaped, and are parsed with `Decimal`, never `float` | Keeps amounts as real numbers in a spreadsheet. A leading `-` on a number is not a formula risk | `$`-prefixed text cells; escaping every leading `-` |
 | BD12 | The validity marker is the first row `TXNWEAVE_SAVE,format_version,1` | Accepted assumption A2 | — |
 | BD13 | Import always creates a **new** investigation. The file limit is 5 MB | Accepted assumptions A3 and A4 | Merge into the open investigation |
+| BD34 | **A file without the validity marker is rejected.** If row 1 is not the BD12 marker (matching rule in 5.2), `POST /investigations/import` returns **422** with the app error body `{"detail": {"code": "not_a_txnweave_file", "message": "This file is not a TxnWeave save file."}}`, for both `dry_run=true` and `dry_run=false`. Nothing is parsed or written. There is no "load anyway" for such files. Files that **do** have the marker still never get an error status for their content: their problems go in the `ImportReport` (5.8) | User decision (2026-11-23), following the "format == expected format" branch of the Starting An Investigation diagram, where a wrong format is an error with no way to proceed (former Q3). Replaces the old best-effort parse of markerless files | Problem entry with "load anyway" (old 5.2); a hybrid that accepts markerless files with known section headers |
 | BD33 | **Importance and settings in the CSV.** (a) Each document section (`transactions`, `gift_cards`, `online_orders`, `misc`) has an `important` column, written as `true` or `false`. (b) The export always writes an optional **`settings`** section **last**, with the columns `setting,color,shape` and five rows: `transaction`, `gift_card`, `online_order` and `misc` (color token and shape), and `important_edge` (color token, blank shape). Values are the effective ones (BD29). **On import, settings never affect whether documents import.** A missing section means the defaults, with no problem reported. The rules are in 5.9. `format_version` stays `1`, because no file has been released yet | User decision (former F4): settings are saved with the export, and documents must still import without them | A separate settings file; bumping `format_version` |
 
 ## 5. Behavior
@@ -27,7 +28,8 @@
 
 5.2 **Validity marker (BD12):**
 - Row 1 is exactly `TXNWEAVE_SAVE,format_version,1`. Row 2 holds the investigation name and export time.
-- A file without the marker gets the problem `not_a_txnweave_file`. If the user proceeds anyway, the importer attempts a best-effort parse.
+- **Matching rule:** after removing a UTF-8 BOM, the first three cells of row 1 must be exactly `TXNWEAVE_SAVE`, `format_version` and `1`. Any further cells in row 1 must be blank (a spreadsheet re-save may pad the row with trailing commas). An empty file also fails.
+- A file that fails the rule is rejected with 422 `not_a_txnweave_file` (BD34). It never reaches the `ImportReport`.
 
 5.3 **Sections (BD9, BD10):**
 - Document sections: `transactions`, `gift_cards`, `online_orders`, `misc`. Child sections: `payments`, `gift_card_history`.
@@ -58,7 +60,7 @@
   - Import never flips a sign. Values are taken as written.
 - **Digit-string cells:** must match their pattern exactly. Scientific notation (`6.00649E+18`) or lost leading zeros caused by Excel are reported as `invalid_format` and never repaired. A message may show at most the last 4 digits of a card number.
 
-5.7 **Import endpoint:** `POST /investigations/import?dry_run=true|false`, with a multipart `file` of at most 5 MB (413 if larger).
+5.7 **Import endpoint:** `POST /investigations/import?dry_run=true|false`, with a multipart `file` of at most 5 MB (413 if larger). The marker is checked first (5.2, BD34).
 - Rows are validated against the `*In` models.
 - `dry_run=true` writes nothing and returns the report.
 - `dry_run=false` creates a new investigation in one database transaction and imports the valid rows.
@@ -68,7 +70,7 @@
   - Duplicate keys within the file, using the composite tuple for transactions. The first row is kept.
 - A Transaction or Online Order whose payment rows were all skipped fails the "at least 1 payment" rule and is skipped too, with a problem entry for it.
 
-5.8 File content never causes an error status (G2). Only a missing file part or bytes that aren't valid UTF-8 return 422, and an oversized file returns 413.
+5.8 In a file that has the marker, content never causes an error status (G2). The only error statuses are: 422 for a missing file part, for bytes that aren't valid UTF-8, or for a missing marker (`not_a_txnweave_file`, BD34); and 413 for an oversized file.
 
 5.9 **Importing `important` and `settings` (BD33):**
 - **`important` cell:**
@@ -84,7 +86,6 @@
 ## `ImportReport`
 ```json
 {
-  "valid_marker": true,
   "format_version": 1,
   "counts": {"rows_read": 40, "documents_imported": 37, "rows_skipped": 3},
   "problems": [
@@ -95,7 +96,7 @@
   ]
 }
 ```
-`severity` is `error` (the row was skipped) or `warning` (the row was imported). Other codes: `not_a_txnweave_file`, `unknown_parent_ref`, `parent_skipped`, `missing_required`, `out_of_range`, `invalid_setting`, `indistinct_styles` (5.9). Settings problems use `section: "settings"`.
+`severity` is `error` (the row was skipped) or `warning` (the row was imported). An `ImportReport` exists only for files with a valid marker, so it has no `valid_marker` field (removed by BD34). Other codes: `unknown_parent_ref`, `parent_skipped`, `missing_required`, `out_of_range`, `invalid_setting`, `indistinct_styles` (5.9). Settings problems use `section: "settings"`.
 
 The non-dry-run response is `{investigation, report}` (201).
 
@@ -112,7 +113,8 @@ The non-dry-run response is `{investigation, report}` (201).
   - Strips one leading `'` from a cell.
   - Reports a transaction row with a blank `store_number` as `missing_required`, skips it and its payment rows (`parent_skipped`), imports the rest, and returns no error status.
 - [ ] CSV export and import never change a sign.
-- [ ] Import `dry_run=true` writes nothing. A file without the marker reports `not_a_txnweave_file`. Proceeding imports the valid rows into a new investigation.
+- [ ] Import `dry_run=true` writes nothing. Proceeding (`dry_run=false`) on a file with the marker imports the valid rows into a new investigation.
+- [ ] A file without the marker (including an empty file, or a `.csv` from another program) returns 422 with code `not_a_txnweave_file` for both `dry_run` values, and creates nothing. A marker row padded with trailing blank cells is accepted (BD34, 5.2).
 
 - [ ] Export writes `important` on every document row and a 5-row `settings` section last.
 - [ ] Importing a file with no `settings` section and no `important` column imports every valid document, with defaults and `false`, and reports no settings problem.

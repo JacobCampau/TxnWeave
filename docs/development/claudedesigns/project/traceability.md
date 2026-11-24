@@ -78,6 +78,7 @@
 | BD9, BD10, BD11, 5.1 to 5.5 | FR-11, UC04 |
 | BD13 | FR-11, UC05 |
 | BD33, 5.9 | FR-13, FR-14, UC08 |
+| BD34 (markerless file rejected, 422) | FR-11, FR-19, UC05 |
 | 5.6 to 5.8, `ImportReport` | FR-11, FR-19, FR-22 |
 
 ## backend/build-plan.md
@@ -105,6 +106,8 @@ Each step carries its FRs in the step table. Step 10 has none (see Untraced).
 | UI-17, `LoadReportDialog` | FR-19 |
 | `App.tsx`, `StartDialog` | FR-01, UC05 |
 | `ConfirmDialog`, `Toast` | FR-01, FR-07 |
+| D34, UI-30 (start flow, Resume row) | FR-01, FR-18, UC05 |
+| D35, UI-31 (CSV load checks) | FR-11, FR-19, UC05 |
 
 ## ui/investigation-page.md
 | Element | FR / UC |
@@ -118,6 +121,8 @@ Each step carries its FRs in the step table. Step 10 has none (see Untraced).
 | UI-6, `PropertyPanel` | FR-09, FR-14, UC03 |
 | UI-7, `GraphToolbar`, `ExportDialog`, Legend | FR-10, FR-17, FR-21, UC09 |
 | UI-29, `cytoscapeConfig.ts` | FR-13, UC08 |
+| D36, UI-32 (export orientation preview) | FR-17, UC09 |
+| D37, UI-33, `GraphLegend` | FR-21 |
 
 ## ui/documents-page.md
 | Element | FR / UC |
@@ -132,6 +137,8 @@ Each step carries its FRs in the step table. Step 10 has none (see Untraced).
 | D32, UI-27 | FR-14, UC06 |
 | D33, UI-28, `DocumentList`, `documentSearch.ts` | FR-16, UC02 |
 | `NodeEditor` | FR-03 to FR-07, FR-12 |
+| UI-34 (Save disabled with no changes) | FR-07, FR-12 |
+| UI-35 (delete details) | FR-07, UC02 |
 
 ## ui/settings-page.md
 | Element | FR / UC |

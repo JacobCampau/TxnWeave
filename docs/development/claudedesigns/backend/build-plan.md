@@ -1,6 +1,6 @@
 # Backend: Build Plan
 
-- **Status:** Agreed (from `backend-graphing-design.md` v3, "Implementation guidance"). Updated 2026-11-17 (user decisions): steps tagged by wave (P1), and new steps for importance (BD27, BD28), settings (BD29 to BD31, BD33) and rename (BD32).
+- **Status:** Agreed (from `backend-graphing-design.md` v3, "Implementation guidance"). Updated 2026-11-17 (user decisions): steps tagged by wave (P1), and new steps for importance (BD27, BD28), settings (BD29 to BD31, BD33) and rename (BD32). Updated 2026-11-23: step 9 adds the BD34 marker rejection.
 - **Scope:** Where every backend file lives and what it contains, dependencies to add, the Compose change for the database volume, and the suggested order of small, reviewable steps for building the backend across all backend feature docs.
 - **Master plan:** [../master-plan.md](../master-plan.md)
 - **Related:** [data-model.md](data-model.md), [persistence.md](persistence.md), [api.md](api.md), [relationship-resolution.md](relationship-resolution.md), [graph-output.md](graph-output.md), [csv-save-load.md](csv-save-load.md)
@@ -47,7 +47,7 @@ Each step is tagged with its wave (P1) and the requirements it serves.
 | 6 | Wave 1 | Placeholders and `referenced_by` in the document endpoints, and the 409 rules | FR-07, FR-08, FR-09 |
 | 7 | Wave 1 | `graph_service` and `GET /graph`. Fill `data/examples/sample-graph.json` with a real response | FR-02 |
 | 8 | Wave 1 | The rest of `services/money.py` (cell parsing and formatting), then the CSV export with `has_unsaved_changes`. (`card_view` is needed earlier, in step 5, for placeholder prefill) | FR-11 |
-| 9 | Wave 1 | CSV import with `dry_run` and the report. This also delivers FR-19 (Wave 2) and FR-22 (Future) early | FR-11, FR-19, FR-22 |
+| 9 | Wave 1 | CSV import with `dry_run` and the report. The marker check runs first and rejects markerless files with 422 `not_a_txnweave_file` (BD34). This also delivers FR-19 (Wave 2) and FR-22 (Future) early | FR-11, FR-19, FR-22 |
 | 10 | Wave 1 | Hardening: the 422 `input` stripping handler and a log review. **No FR behind it** (sensitive data, see [traceability](../project/traceability.md)) | — |
 | 11 | Wave 2 | Importance: `important` in `*In` / `*Out`, the BD28 `PATCH`, graph 4.3 and 4.4, and the CSV `important` column (BD33a) | FR-14, FR-15, UC06, UC07 |
 | 12 | Wave 2 | Settings: the `investigation_settings` model, `settings_service`, `routes/settings.py` (BD29 to BD31), and the CSV `settings` section (BD33b, 5.9) | FR-13, UC08 |

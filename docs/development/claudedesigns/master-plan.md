@@ -1,6 +1,6 @@
 # TxnWeave Master Plan
 
-- **Status:** Agreed (reorganized from `backend-graphing-design.md` v3 and `page-and-ui-layout.md` v2, 2026-11-17; no content changes). Updated 2026-11-17 with the user's course-requirement decisions: P1, P2, BD27 here; BD28 to BD33 and D26 to D33 in feature docs ([history](design-history.md)).
+- **Status:** Agreed (reorganized from `backend-graphing-design.md` v3 and `page-and-ui-layout.md` v2, 2026-11-17; no content changes). Updated 2026-11-17 with the user's course-requirement decisions: P1, P2, BD27 here; BD28 to BD33 and D26 to D33 in feature docs ([history](design-history.md)). Updated 2026-11-23 to follow the activity diagrams: G4 narrowed; BD34 and D34 to D37 in feature docs.
 - **Source plans:** `docs/development/initial-plans.md`, `docs/development/CS420_Project_Discovery and Specification.pdf`, `docs/development/CS420_Project_Concept.pdf` (unread, F19)
 - **History:** [design-history.md](design-history.md) holds the original version metadata, changelogs and follow-ups.
 
@@ -21,14 +21,14 @@ The project is also a CS 420 (HCI) course project. Where its pieces are:
 - **Design-to-requirement map:** every design element mapped to an FR or UC (P2) in [project/traceability.md](project/traceability.md).
 - **Build order:** the waves in P1.
 
-Course follow-ups that are still open (F7 to F10, F12 to F15, F19) don't change any agreed decision.
+Follow-ups that are still open (F7 to F10, F12 to F15, F19 to F21) don't change any agreed decision.
 
 ## Goals
 **Backend**
 - G1. One API produces the full Cytoscape element list for an investigation. The frontend never decides which nodes are connected.
 - G2. Missing, partial, one-sided or ambiguous references never cause an error. They show up as incomplete nodes and edges.
 - G3. Investigation data survives a browser crash or reload without the user doing anything (the plan's "saved occasionally").
-- G4. The backend supports CSV export and import with a validity marker and a best-effort load.
+- G4. The backend supports CSV export and import with a validity marker. A file without the marker is rejected (BD34). A file with the marker loads best-effort: bad rows are reported and skipped.
 - G5. Every piece is small enough to review on its own: pure-function relationship resolution, thin routes, one service per concern.
 
 **UI**
@@ -112,7 +112,7 @@ These decisions affect several feature docs, so they live here. Feature docs ref
 - **Data flow:** form → `POST/PUT /documents` (commits immediately) → `GET /graph` returns Cytoscape elements → `graphMapper.ts` adds labels → Cytoscape renders.
 
 ## Conventions
-- **Decision IDs** are kept from the original docs so cross-references stay valid: `G1`–`G5` backend goals; `P1`, `P2` project decisions; `B1`–`B17` and `BD1`–`BD33` backend decisions (there is no BD20); `D1`–`D33` UI decisions; `R1`–`R6` reference rules; behavior numbers `1.x`–`6.x` are the backend behavior sections; UI behaviors are `UI-1` to `UI-29`; `F1` to `F19` follow-ups (all in [design-history.md](design-history.md)). Course-document IDs are kept exactly as the PDF writes them: `FR-01` to `FR-27`, `UC01` to `UC10`. Project-level IDs from the course pass: `S1`, `S2` success criteria, `NQ-1` to `NQ-8` quality goals, `RK-1` to `RK-6` risks, `S-1` suggestion.
+- **Decision IDs** are kept from the original docs so cross-references stay valid: `G1`–`G5` backend goals; `P1`, `P2` project decisions; `B1`–`B17` and `BD1`–`BD34` backend decisions (there is no BD20); `D1`–`D37` UI decisions; `R1`–`R6` reference rules; behavior numbers `1.x`–`7.x` are the backend behavior sections; UI behaviors are `UI-1` to `UI-35`; `F1` to `F21` follow-ups (all in [design-history.md](design-history.md)). Course-document IDs are kept exactly as the PDF writes them: `FR-01` to `FR-27`, `UC01` to `UC10`. Project-level IDs from the course pass: `S1`, `S2` success criteria, `NQ-1` to `NQ-8` quality goals, `RK-1` to `RK-6` risks, `S-1` suggestion.
 - Each decision is written out in full in exactly one doc. Other docs cite the ID.
 - Forms and CSV show dates as `MM-DD-YYYY`. The API and database use ISO (B8).
 - Negative amounts are displayed as `-$25.00`.
@@ -129,7 +129,7 @@ These decisions affect several feature docs, so they live here. Feature docs ref
 | [backend/csv-save-load.md](backend/csv-save-load.md) | CSV export and import: marker, sections, cell rules, parsing, dry run, `ImportReport` |
 | [backend/build-plan.md](backend/build-plan.md) | Backend file map, dependencies, Compose volume, build order |
 | [ui/color-system.md](ui/color-system.md) | Palette tokens, contrast tables, per-element color usage, transparency rule |
-| [ui/app-shell.md](ui/app-shell.md) | Routes, TopBar, StartDialog, unsaved-changes prompts, Save/Load, banners, toasts, keyboard, width |
+| [ui/app-shell.md](ui/app-shell.md) | Routes, TopBar, StartDialog and the start flow (Starting An Investigation diagram), unsaved-changes prompts, Save/Load, banners, toasts, keyboard, width |
 | [ui/investigation-page.md](ui/investigation-page.md) | Graph canvas, node/edge styles, toolbar, PropertyPanel, PNG export |
 | [ui/documents-page.md](ui/documents-page.md) | Document list, per-type forms, inputs, validation, repeatable rows, delete |
 | [ui/settings-page.md](ui/settings-page.md) | Investigation settings page: per-type color and shape, important-edge color, reset to defaults, Delete investigation |

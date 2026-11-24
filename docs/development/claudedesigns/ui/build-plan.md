@@ -1,6 +1,6 @@
 # UI: Build Plan
 
-- **Status:** Agreed (from `page-and-ui-layout.md` v2, "Implementation guidance"). Updated 2026-11-17 (user decisions): steps tagged by wave (P1), and new steps for rename and delete (D29, D30), the settings page (D26 to D28), importance (D31, D32) and document search (D33).
+- **Status:** Agreed (from `page-and-ui-layout.md` v2, "Implementation guidance"). Updated 2026-11-17 (user decisions): steps tagged by wave (P1), and new steps for rename and delete (D29, D30), the settings page (D26 to D28), importance (D31, D32) and document search (D33). Updated 2026-11-23: steps 8, 8a and 10 follow the activity diagrams (D34 to D37, UI-30 to UI-35).
 - **Scope:** Frontend dependencies to add and the suggested order of small, reviewable steps for building the UI across all UI feature docs.
 - **Master plan:** [../master-plan.md](../master-plan.md)
 - **Related:** [color-system.md](color-system.md), [app-shell.md](app-shell.md), [investigation-page.md](investigation-page.md), [documents-page.md](documents-page.md), [settings-page.md](settings-page.md), [../backend/build-plan.md](../backend/build-plan.md)
@@ -23,9 +23,10 @@ Each step is tagged with its wave (P1) and the requirements it serves.
 | 5 | Wave 1 | GraphCanvas with mock elements, `buildStylesheet` using the **default** styles (D9), and the empty state | FR-02, FR-08, FR-10, FR-20 |
 | 6 | Wave 1 | PropertyPanel and the `?doc` deep link | FR-09, UC03 |
 | 7 | Wave 1 | GraphToolbar: fit, zoom, re-layout, edge-label toggle | FR-10 |
-| 8 | Wave 1 | StartDialog, Save/Load, ConfirmDialog, toasts, the error banner and LoadReportDialog, wired to the backend | FR-01, FR-11 (also FR-19 early) |
+| 8 | Wave 1 | StartDialog and the start flow (D34: shown on every open, Resume row UI-30, land on `/`), Save/Load with the CSV load checks (D35, UI-31), ConfirmDialog, toasts, the error banner and LoadReportDialog ("Load documents" / "Cancel", UI-17), wired to the backend | FR-01, FR-11, FR-18 (also FR-19 early) |
+| 8a | Wave 1 | Documents page diagram details: Save disabled with no changes (UI-34), delete details (UI-35) | FR-07, FR-12 |
 | 9 | Wave 1 | SettingsPage shell (D26) with **Delete investigation** (D29, UI-24) | FR-01 |
-| 10 | Wave 2 | ExportDialog (PNG) and the Legend | FR-17, FR-21, UC09 |
+| 10 | Wave 2 | ExportDialog with the live orientation preview and position restore (D36, UI-32), and the Legend checkbox and `GraphLegend` overlay (D37, UI-33) | FR-17, FR-21, UC09 |
 | 11 | Wave 2 | Importance: the PropertyPanel checkbox (D31, UI-26), the form checkbox and list badge (D32, UI-27), and the important node and edge styles | FR-14, FR-15, UC06, UC07 |
 | 12 | Wave 2 | Document search: `documentSearch.ts`, the search box, the status and Important-only filters, date sort rules (D33, UI-28) | FR-16 |
 | 13 | Wave 2 | Appearance: AppearanceTable, StylePreview, Save and Reset (D27, D28, UI-21 to UI-23). `buildStylesheet` and the legend read the settings (UI-29) | FR-13, UC08 |

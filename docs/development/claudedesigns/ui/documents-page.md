@@ -1,6 +1,6 @@
 # UI: Documents Page (list and forms)
 
-- **Status:** Agreed (from `page-and-ui-layout.md` v2). Updated 2026-11-17 (user decisions): Important in the form and list (D32, UI-27); document search, sort and filters (D33, UI-28), which replaces D13's "Incomplete only" checkbox.
+- **Status:** Agreed (from `page-and-ui-layout.md` v2). Updated 2026-11-17 (user decisions): Important in the form and list (D32, UI-27); document search, sort and filters (D33, UI-28), which replaces D13's "Incomplete only" checkbox. Updated 2026-11-23 (user decisions) to follow `docs/development/drawioactivitydiagrams/Investigation.drawio`: Save disabled with no changes (UI-34), delete details (UI-35), and a note on the diagram's save path.
 - **Scope:** The Documents page at `/documents`: the split view with the document list (new-document menu, filters, sort, incomplete count, items) and the NodeEditor form pane, the UI view of every form field, display titles, amount signs, format-enforcing inputs, validation, explicit Save, unsaved-edit prompts, repeatable payment and history rows, incomplete (placeholder) documents, delete confirmation, and the `?doc=<id>` deep link.
 - **Master plan:** [../master-plan.md](../master-plan.md) (B6, B7, B8, BD25)
 - **Related:** [../backend/data-model.md](../backend/data-model.md) (authoritative types, BD24 titles, BD26), [../backend/api.md](../backend/api.md) (document endpoints, `referenced_by`, 409 rules), [../backend/relationship-resolution.md](../backend/relationship-resolution.md) (placeholder prefill), [color-system.md](color-system.md), [app-shell.md](app-shell.md)
@@ -80,6 +80,12 @@ The data-model design owns the authoritative types. In this table, "digits(N)" m
   - "Add payment" and "Add history entry" append a row, and each row has a Remove (×) button.
   - Payment sections show a running "Total $X.XX". The total can be negative, and is then shown as "Total -$X.XX".
   - Changing a row's type away from Gift Card clears and hides that row's card number field.
+- **UI-34. Save with no changes.** The Save button is disabled while the form has no unsaved changes (the same tracking UI-14 uses). It becomes enabled on the first change and disabled again after a successful Save. On a new, empty form it is enabled once any field has a value. On an incomplete (placeholder) document it is always enabled, because saving it is what promotes it, even when the prefilled values are already complete. *(This is the diagram's [changes_made == false] path: nothing is sent.)*
+- **Diagram's save path.** The Investigation diagram's "check referenced documents → create incomplete node for all non existent nodes referenced → add document to list → update relationships for graph" is met by UI-13 and the backend: the backend works out incomplete nodes on every read (B4, never stored), the list refetch shows them, and the graph is marked stale. No incomplete node is created or stored by the frontend.
+- **UI-35. Delete details (D15, UI-15):**
+  - The Delete button is not shown on incomplete (placeholder) documents, which can't be deleted (API 2.5).
+  - When no document references the one being deleted, the ConfirmDialog says "No other documents reference this one." instead of the list.
+  - After a delete, no document is selected and the form pane shows "Select or create a document" (UI-9).
 - **UI-27. Important (D32):** checking the box marks the form as changed, like any other field (UI-14). After Save, the list badge and the graph (edges included, BD27) reflect the new value.
 - **UI-28. Search, filters and sort (D33).** The list header holds a search box (`type="search"`, `autocomplete="off"`, placeholder "Search documents"), the filters, and the sort menu.
   - **Sort keys:** Title A–Z (default), Title Z–A, Date newest, Date oldest.
@@ -119,7 +125,8 @@ The data-model design owns the authoritative types. In this table, "digits(N)" m
 - [ ] The Documents list filters by type and by "Incomplete only", sorts by title and date, and shows the incomplete count. Incomplete items show the badge and rose border and are not pinned.
 - [ ] Required fields are marked with * and validated on blur and on Save. Digits-only fields reject anything else. Date and time fields enforce `MM-DD-YYYY` and `HH:MM`.
 - [ ] The gift card number field appears only on Gift Card payment rows, and the running payment total is correct.
-- [ ] Delete asks for confirmation and lists the documents that reference the one being deleted.
+- [ ] Delete asks for confirmation and lists the documents that reference the one being deleted, or says "No other documents reference this one." Incomplete documents have no Delete button. After a delete, no document is selected.
+- [ ] Save is disabled on an unchanged form and enabled after any edit.
 
 - [ ] Every form has an Important checkbox. It is disabled on incomplete documents, and saved documents show the Important badge.
 - [ ] Search "0123" finds the card ending 0123 and every document whose payment used it. The URL never changes while typing.
