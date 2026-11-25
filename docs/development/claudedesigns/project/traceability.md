@@ -1,6 +1,6 @@
 # Project: Design-to-Requirement Traceability
 
-- **Status:** Agreed (P2, user decision 2026-11-17). This map is maintained by whoever adds or changes a design element: every new decision, behavior or component gets a row here in the same change.
+- **Status:** Agreed (P2, user decision 2026-11-17). Updated 2026-11-24: rows for csv-save-load 5.10 (column layout). This map is maintained by whoever adds or changes a design element: every new decision, behavior or component gets a row here in the same change.
 - **Master plan:** [../master-plan.md](../master-plan.md) (P2)
 - **Related:** [requirements.md](requirements.md) (FR → design, the reverse direction)
 
@@ -70,6 +70,15 @@
 | Node and edge data fields | FR-02, FR-09 |
 | Classes | FR-02, FR-21 |
 | 4.3, 4.4 | FR-14, FR-15, UC06, UC07 |
+| 4.5 (node `position`) | FR-10, FR-18 (weak) |
+
+## backend/node-positions.md
+| Element | FR / UC |
+|---|---|
+| BD35, `node_positions` table | FR-10, FR-18 (weak) |
+| BD36, `LayoutIn`, layout endpoints, 8.1 to 8.4, 8.9 | FR-10, FR-18 (weak) |
+| BD37, 8.5 to 8.7 (delete, promotion, changed IDs) | FR-10 (weak), FR-08 |
+| 8.8 (not in the CSV) | FR-11 |
 
 ## backend/csv-save-load.md
 | Element | FR / UC |
@@ -80,6 +89,8 @@
 | BD33, 5.9 | FR-13, FR-14, UC08 |
 | BD34 (markerless file rejected, 422) | FR-11, FR-19, UC05 |
 | 5.6 to 5.8, `ImportReport` | FR-11, FR-19, FR-22 |
+| 5.10 column layout (row 2 name row, section order, column headers, ref numbering) | FR-11, UC04, UC05 |
+| 5.10 import parsing (headers by name, missing required column, `unknown_section`, rows before the first section) | FR-11, FR-19, UC05 |
 
 ## backend/build-plan.md
 Each step carries its FRs in the step table. Step 10 has none (see Untraced).
@@ -113,7 +124,8 @@ Each step carries its FRs in the step table. Step 10 has none (see Untraced).
 | Element | FR / UC |
 |---|---|
 | D7 | FR-02, FR-08, FR-09, FR-10 |
-| D8 | FR-10, FR-20 |
+| D8 (amended 2026-11-24: positions saved) | FR-10, FR-18 (weak), FR-20 |
+| D38, UI-36, UI-37, UI-38, `src/graph/placement.ts` | FR-10, FR-18 (weak), FR-20 |
 | D9, graph styles | FR-02, FR-13, FR-21 |
 | D11 | FR-02 |
 | D31, UI-26 | FR-14, FR-15, UC06, UC07 |
@@ -165,4 +177,5 @@ These have **no FR or UC behind them**. They stay in the design. Whether to keep
 
 ## Weakly traced elements
 - **Incomplete nodes and edges** (G2, B4, B5, BD2, BD3, BD14, BD15, BD18, 3.5 to 3.8, UI-12, and the incomplete styles in D9 and D22) trace to FR-08 only by interpretation: relationships are generated from forms, including references to documents that don't exist yet. The explicit source is `initial-plans.md` ("incomplete or missing information should not throw an error"), not an FR.
+- **Saved node positions** (D8 as amended, D38, UI-36 to UI-38, BD35 to BD37, 4.5, 8.x) trace to FR-10 and FR-18 only by interpretation. FR-10 asks that nodes can be repositioned, which dragging already meets; FR-18 is autosave of investigation data. No FR asks for positions to be kept. The explicit source is the user's decision of 2026-11-24.
 - **5.5 formula escaping** traces to FR-11 (a readable file), but its purpose is security (spreadsheet formula injection).

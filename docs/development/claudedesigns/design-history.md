@@ -59,7 +59,47 @@ Traceability is in [project/requirements.md](project/requirements.md) and [proje
 | F15 | Interview Q6: one person's actions | No person entity | Gap | Defer. Workaround: one Misc document per person |
 | F20 | `Starting An Investigation.drawio`: "Load last investigation from cookies" | D34, B2 (server autosave; nothing stored in the browser) | Diagram wording only | Relabel the diagram box "Load last investigation from autosave" next time the diagram is edited |
 | F21 | `visualdesigns/fr-11-fr-19-uc05-load-report-dialog.html` and `visualdesigns/index.html` | UI-17 (button now "Load documents"), BD34 (markerless files rejected) | Mockups out of date | Ask the ui-designer agent to refresh them. The design docs win |
+| F22 | User decision 2026-11-24 (BD35) | Node positions are not in the CSV | A loaded CSV gets a fresh automatic layout, and BD7 makes CSV the normal archive, so arrangements don't survive a save and load | Future: an optional `layout` section keyed by `ref` (placeholder IDs survive import unchanged), like the BD33 `settings` section |
 | F19 | `CS420_Project_Concept.pdf` | — | **Unread.** The pages render blank, and the text is in compressed font streams. Only the outline and link targets could be read | Re-run the comparison once the text is available |
+
+## Changelog: CSV column layout (2026-11-24)
+User-approved implementation plan (2026-11-24), relayed by the coordinating agent. Records the full CSV column layout that [backend/csv-save-load.md](backend/csv-save-load.md) had left to "the CSV design". No new decision ID: the layout is behavior 5.10 under the existing BD9, BD10, BD12 and BD33.
+- **New behavior 5.10** "Column layout": row 2 `investigation_name,<name>,exported_at,<ISO 8601 UTC>` (names the imported investigation; a missing or malformed row 2 is not a problem); the `section,<name>` block format; the seven sections in order (`transactions`, `gift_cards`, `online_orders`, `misc`, `payments`, `gift_card_history`, `settings`) with their exact headers; refs numbered per type in 3.12 order; headers matched by name; `missing_required` for a missing required column; rows before the first section ignored.
+- **New problem code:** `unknown_section` (always a `warning`; the section's rows are skipped).
+- **Changed agreed text:**
+  - csv-save-load: Status and Scope; the non-goal "The full CSV column layout ..." removed; 5.2 and 5.3 point to 5.10 (old 5.3: "The exact column order is left to the CSV design."); the `ImportReport` code list; new acceptance criteria.
+  - [master-plan.md](master-plan.md): "Still to come: a CSV save/load format design (full column layout) and an IAM design." became "Still to come: an IAM design."
+  - [ui/app-shell.md](ui/app-shell.md) non-goal: "deferred to the CSV design" now points to 5.10 (wording only).
+  - [project/traceability.md](project/traceability.md): two new rows for 5.10 (FR-11, FR-19, UC04, UC05).
+- F8 (UC04 "sheet" wording) stays open. F22 (positions in the CSV) is unchanged; an imported `layout` section would currently get the `unknown_section` warning.
+
+## Changelog: saved node positions (2026-11-24)
+User decisions, asked by the coordinating agent and relayed to the project-designer agent. The user chose "Saved permanently" over "keep for this session only".
+- **D8 reversed and amended in place** ([ui/investigation-page.md](ui/investigation-page.md)):
+  - Old: "Nodes are placed by the automatic `cose` layout, with a Re-layout button. Dragged positions are not saved in v1." Rationale: "Avoids storing layout data in the CSV."
+  - New: "**Every node's position is saved** on the server (BD35), and no node moves on its own between loads. When no node has a saved position (a new investigation, or one loaded from CSV), the full automatic `cose` layout (deterministic: the same data always gives the same positions) runs and its result is saved. Dragging a node saves its new position (UI-36). Nodes that appear later are placed by D38. Re-layout replaces every saved position after a confirm (UI-37)." The CSV still holds no layout data, so v1's reason still stands.
+- **New decisions:**
+  - BD35 to BD37 in the new [backend/node-positions.md](backend/node-positions.md): the `node_positions` table, including incomplete nodes keyed by placeholder ID; positions not in the CSV and not an unsaved change; `PUT` and `PATCH .../layout`; promotion keeps the placeholder's position.
+  - D38: new nodes are placed, and only their direct neighbors and nodes within 150 px may move. The user said: "I want everything saved. But when adding a new node, the nodes nearest to it can be moved as needed to fit the new node."
+- **New behaviors:** 8.1 to 8.9 (node-positions), 4.5 (graph `position`), api 2.12, UI-36 (drag save), UI-37 (Re-layout confirm), UI-38 (placement on load).
+- **Changed agreed text:**
+  - D36 and UI-32: Export now restores the saved positions too. Old: "After **Export**, the previewed positions stay until the next Re-layout." No dragging while the dialog is open.
+  - UI-32 determinism fix. Old: "Each switch re-runs the layout, so the result can differ slightly." New: "The layout is deterministic, so switching back gives the same arrangement as before."
+  - The investigation-page non-goal "Saving dragged node positions, including positions set by the export preview (D36)" now covers only the preview, zoom and pan, and the CSV.
+  - The graph-output non-goal "Graph layout and node positions (D8)" becomes "Computing graph layout".
+  - UI-7 Re-layout. api.md: endpoint rows, 1.3, 2.4, the `updated_at` note. persistence.md: the new table. relationship-resolution 3.8: a pointer to BD37. csv-save-load: a non-goal. Master plan: goal, principle 2, conventions, index.
+  - Both build plans: backend step 13 and UI step 14 (Wave 2); UI step 10 reworded.
+  - traceability.md and requirements.md: new rows. Saved positions are weakly traced to FR-10 and FR-18.
+- **Accepted caveat:** a placeholder whose key changes gets a new ID and is placed again as a new node (8.7).
+- **New follow-up:** F22.
+
+## Changelog: frontend dependency (2026-11-24)
+User decision, relayed by the coordinating agent: drop `@types/cytoscape`. `cytoscape` 3.35 (installed in `apps/web/package.json` as `"cytoscape": "^3.35.0"`) ships its own TypeScript definitions (`index.d.ts`, the `"types"` field in its `package.json`), so the separate types package is redundant and can conflict with them.
+- **Changed agreed text:**
+  - [master-plan.md](master-plan.md) "Tech stack", Frontend row: `cytoscape` + `@types/cytoscape` became `cytoscape` (≥3.35, bundles its own types).
+  - [ui/build-plan.md](ui/build-plan.md) "Dependencies to add": `@types/cytoscape` removed, with a note on why.
+- **No new decision ID.** This is a tooling change with no FR behind it, and the tech stack has no decision IDs. [project/traceability.md](project/traceability.md) doesn't list dependencies, so it is unchanged.
+- The historical `page-and-ui-layout.md` still lists `@types/cytoscape`. It is left unchanged on purpose (see "Historical records kept on purpose").
 
 ## Changelog: activity diagrams (2026-11-23)
 Design docs aligned with the user's two UML activity diagrams, `docs/development/drawioactivitydiagrams/Starting An Investigation.drawio` and `docs/development/drawioactivitydiagrams/Investigation.drawio`, which are Figures 1 and 2 in `docs/development/CS420_Project_Design.pdf` (sections 3.1 and 3.2; mockups in Figures 3 to 9). The user answered every question (Q1 to Q8 and group C), relayed by the coordinating agent.

@@ -41,7 +41,7 @@
 | FR-07 | Edit and delete nodes | 1 | Covered | D14, D15, 2.3, 2.4 |
 | FR-08 | Relationships come from the forms, never drawn | 1 | Covered | G1, B12, R1 to R6 |
 | FR-09 | Clicking a node shows its properties | 1 | Covered | D7, UI-6 |
-| FR-10 | Zoom, pan and reposition nodes | 1 | Covered. Which mouse button pans is open (F9) | D7, D8 |
+| FR-10 | Zoom, pan and reposition nodes | 1 | Covered. Which mouse button pans is open (F9). Keeping moved positions across reloads goes beyond the FR and is built in Wave 2 | D7, D8, D38, UI-36, BD35 |
 | FR-11 | Export and import investigation data | 1 | Covered | B17, BD9 to BD13, BD33 |
 | FR-12 | Inputs validated before node creation | 1 | Covered | D14, UI-13, 2.1 |
 | FR-13 | Users assign colors to nodes and relationships | 2 | Covered. Per-type color and shape, and the important-edge color, on the Investigation settings page. Individual edges aren't colored, because edges aren't stored | D26 to D28, BD29 to BD31, BD33 |
@@ -49,7 +49,7 @@
 | FR-15 | Identify and highlight a path connecting selected nodes | 2 | Covered **through importance**. There is no path finding (see below) | BD27, D31 |
 | FR-16 | Search graph elements by identifier or text | 2 | Covered **on the Documents page**. No search on the graph | D33, UI-28 |
 | FR-17 | Export the graph as an image | 2 | Covered | UI-7, D36, UI-32 |
-| FR-18 | Autosave | 2 | Covered | B2 |
+| FR-18 | Autosave | 2 | Covered. Node positions are autosaved too (weak link) | B2, BD35 |
 | FR-19 | Identify invalid import data | 2 | Covered | 5.2, 5.7, 5.9, BD34, D35, UI-17, UI-31 |
 | FR-20 | Workspace grows as nodes are added or moved | 2 | Covered: Cytoscape's canvas has no fixed size, plus Fit and pan | D8, UI-7 |
 | FR-21 | Legend for element types and meanings | 2 | Covered for node types, incomplete style and important style. Edge kinds would come from suggestion S-1 | Legend (D37), [investigation-page](../ui/investigation-page.md) |

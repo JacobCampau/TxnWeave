@@ -1,13 +1,13 @@
 # Backend: Graph Output (Cytoscape elements)
 
-- **Status:** Agreed (from `backend-graphing-design.md` v3, behavior section 4 and the `GraphOut` interface). Updated 2026-11-17 (user decisions): node and edge `important` (BD27), behaviors 4.3 and 4.4.
+- **Status:** Agreed (from `backend-graphing-design.md` v3, behavior section 4 and the `GraphOut` interface). Updated 2026-11-17 (user decisions): node and edge `important` (BD27), behaviors 4.3 and 4.4. Updated 2026-11-24 (user decision): saved node `position` (4.5, BD35).
 - **Scope:** `services/graph_service.py` and `GET /api/investigations/{iid}/graph`: how saved documents, placeholders and merged links become Cytoscape nodes and edges, the `GraphOut` payload, every node and edge `data` field, the classes the backend sets, and the exact split of graph work between backend and frontend.
 - **Master plan:** [../master-plan.md](../master-plan.md) (B13 card masking, G1)
 - **Related:** [relationship-resolution.md](relationship-resolution.md) (produces the input), [api.md](api.md) (endpoint row), [../ui/investigation-page.md](../ui/investigation-page.md) (renders it: labels, styles, layout, PNG export)
 
 ## Non-goals
 - PNG export. This happens entirely in the frontend (`cy.png()` in `ExportDialog`, [investigation-page](../ui/investigation-page.md) UI-7). The backend has no part in it.
-- Graph layout and node positions (D8).
+- Computing graph layout (D8). The backend only returns positions the frontend saved earlier (4.5, [node-positions](node-positions.md)).
 
 ## Decisions
 | # | Decision | Rationale | Alternatives considered |
@@ -19,6 +19,7 @@
 4.2 An empty investigation returns 200 with empty `nodes` and `edges`.
 4.3 **Node importance (BD27):** `data.important` copies the document's flag. Placeholders are always `false`. Important nodes get the class `important`.
 4.4 **Edge importance (BD27):** after merging (3.9), `data.important` is `true` exactly when both the source and the target nodes have `important: true`. It is computed in `build_graph` on every call and never stored. It doesn't depend on `kind`, `status` or `match`, but it can't be true when either end is a placeholder. Important edges get the class `important`. Settings (colors and shapes) are **not** part of `GraphOut` (BD31).
+4.5 **Saved positions (BD35):** `build_graph(resolution, docs, positions)` takes the investigation's stored positions as `dict[str, tuple[float, float]]` (node ID to x, y) and stays pure. A node whose ID is in `positions` gets an element-level `"position": {"x": ..., "y": ...}` next to `data` and `classes` (Cytoscape reads this field natively). A node with no saved position has no `position` key. Positions for IDs that aren't nodes in this response are ignored (8.4). `position` never affects ordering, `counts` or any other field.
 
 Ordering follows [relationship-resolution](relationship-resolution.md) 3.12 (determinism).
 
@@ -33,7 +34,7 @@ Ordering follows [relationship-resolution](relationship-resolution.md) 3.12 (det
       {"data": {"id": "12", "document_id": "12", "node_type": "transaction", "status": "complete",
                 "display_key": "00482913", "date": "2026-03-14", "time": "18:05",
                 "store_number": "042", "register_number": "003"},
-       "classes": "transaction"},
+       "classes": "transaction", "position": {"x": 140.5, "y": -32.0}},
       {"data": {"id": "13", "document_id": "13", "node_type": "transaction", "status": "complete",
                 "display_key": "00482913", "date": "2026-03-14", "time": "18:20",
                 "store_number": "042", "register_number": "007"},
@@ -81,7 +82,8 @@ Ordering follows [relationship-resolution](relationship-resolution.md) 3.12 (det
 | Nodes, placeholders, matching, ambiguity, edges, merging, status, classes, card masking, `title`, node and edge `important` | Backend |
 | Building the per-type color and shape stylesheet from `GET .../settings` (BD31) | `cytoscapeConfig.ts` |
 | Node label text (`TXN 00482913` plus a distinguishing store suffix if follow-up F1 is approved, `GC …0123`, `ORD …`, Misc name, " (incomplete)"), edge label text from `kind` | `graphMapper.ts` |
-| Styles, layout, PNG export, label toggle | `cytoscapeConfig.ts` / components |
+| Styles, layout (including where new nodes go and when positions are saved, D8, D38), PNG export, label toggle | `cytoscapeConfig.ts` / components |
+| Storing and returning node positions (BD35 to BD37) | Backend ([node-positions](node-positions.md)) |
 | `MM-DD-YYYY` ↔ ISO and `$` ↔ signed cents conversion in forms | Frontend form code |
 
 Note: F1 has since been approved and applied (the store suffix rule is in [../ui/investigation-page.md](../ui/investigation-page.md)). See [../design-history.md](../design-history.md).
@@ -94,6 +96,7 @@ Also see `sample-graph.json` in [build-plan.md](build-plan.md) step 7.
 
 - [ ] With A and B important and C not, the A–B edge has `important: true` and class `important`, and the A–C edge does not. Un-marking A makes A–B `false` on the next call.
 - [ ] An edge to a placeholder is never important.
+- [ ] With positions for nodes `"12"` and `"ph-gift_card-000000000000"` (not in the graph), node 12 has `position` and no other node has one. The same data and positions give identical `elements` across two calls.
 
 ## Course requirements
-Traces: FR-02, FR-08, FR-14, FR-15, UC06, UC07 (full map in [../project/traceability.md](../project/traceability.md)).
+Traces: FR-02, FR-08, FR-10, FR-14, FR-15, FR-18, UC06, UC07 (full map in [../project/traceability.md](../project/traceability.md)).

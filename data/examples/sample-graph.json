@@ -1,0 +1,233 @@
+{
+  "investigation_id": 1,
+  "generated_at": "2026-11-24T23:54:17.692789Z",
+  "counts": {
+    "nodes": 7,
+    "edges": 7,
+    "incomplete_nodes": 1
+  },
+  "elements": {
+    "nodes": [
+      {
+        "data": {
+          "id": "3",
+          "document_id": "3",
+          "node_type": "transaction",
+          "status": "complete",
+          "display_key": "00482913",
+          "date": "2026-03-14",
+          "time": "18:05",
+          "store_number": "042",
+          "register_number": "003",
+          "important": false
+        },
+        "classes": "transaction"
+      },
+      {
+        "data": {
+          "id": "4",
+          "document_id": "4",
+          "node_type": "transaction",
+          "status": "complete",
+          "display_key": "00482913",
+          "date": "2026-03-14",
+          "time": "18:20",
+          "store_number": "057",
+          "register_number": null,
+          "important": false
+        },
+        "classes": "transaction"
+      },
+      {
+        "data": {
+          "id": "1",
+          "document_id": "1",
+          "node_type": "transaction",
+          "status": "complete",
+          "display_key": "11112222",
+          "date": "2026-03-01",
+          "time": "09:41",
+          "store_number": "042",
+          "register_number": null,
+          "important": true
+        },
+        "classes": "transaction important"
+      },
+      {
+        "data": {
+          "id": "2",
+          "document_id": "2",
+          "node_type": "gift_card",
+          "status": "complete",
+          "display_key": "\u20260123",
+          "date": "2026-03-01",
+          "time": "09:41",
+          "store_number": "042",
+          "register_number": null,
+          "important": true
+        },
+        "classes": "gift-card important"
+      },
+      {
+        "data": {
+          "id": "ph-gift_card-5f4bd08dab58",
+          "document_id": "ph-gift_card-5f4bd08dab58",
+          "node_type": "gift_card",
+          "status": "incomplete",
+          "display_key": "\u20269999",
+          "date": null,
+          "time": null,
+          "store_number": null,
+          "register_number": null,
+          "important": false
+        },
+        "classes": "gift-card incomplete"
+      },
+      {
+        "data": {
+          "id": "5",
+          "document_id": "5",
+          "node_type": "online_order",
+          "status": "complete",
+          "display_key": "87654321",
+          "date": "2026-03-15",
+          "time": "20:00",
+          "store_number": null,
+          "register_number": null,
+          "important": false
+        },
+        "classes": "online-order"
+      },
+      {
+        "data": {
+          "id": "6",
+          "document_id": "6",
+          "node_type": "misc",
+          "status": "complete",
+          "display_key": "Suspect vehicle",
+          "date": "2026-03-14",
+          "time": "18:00",
+          "store_number": null,
+          "register_number": null,
+          "important": false
+        },
+        "classes": "misc"
+      }
+    ],
+    "edges": [
+      {
+        "data": {
+          "id": "e-activated-1-2",
+          "source": "1",
+          "target": "2",
+          "kind": "activated",
+          "status": "complete",
+          "match": "exact",
+          "refs": [
+            "gift_card_activation"
+          ],
+          "ref_count": 1,
+          "important": true
+        },
+        "classes": "activated important"
+      },
+      {
+        "data": {
+          "id": "e-related-6-3",
+          "source": "6",
+          "target": "3",
+          "kind": "related",
+          "status": "incomplete",
+          "match": "ambiguous",
+          "refs": [
+            "misc_reference"
+          ],
+          "ref_count": 1,
+          "important": false
+        },
+        "classes": "related incomplete ambiguous"
+      },
+      {
+        "data": {
+          "id": "e-related-6-4",
+          "source": "6",
+          "target": "4",
+          "kind": "related",
+          "status": "incomplete",
+          "match": "ambiguous",
+          "refs": [
+            "misc_reference"
+          ],
+          "ref_count": 1,
+          "important": false
+        },
+        "classes": "related incomplete ambiguous"
+      },
+      {
+        "data": {
+          "id": "e-related-6-5",
+          "source": "6",
+          "target": "5",
+          "kind": "related",
+          "status": "complete",
+          "match": "exact",
+          "refs": [
+            "misc_reference"
+          ],
+          "ref_count": 1,
+          "important": false
+        },
+        "classes": "related"
+      },
+      {
+        "data": {
+          "id": "e-used_in-2-3",
+          "source": "2",
+          "target": "3",
+          "kind": "used_in",
+          "status": "complete",
+          "match": "exact",
+          "refs": [
+            "gift_card_history",
+            "payment"
+          ],
+          "ref_count": 2,
+          "important": false
+        },
+        "classes": "used-in"
+      },
+      {
+        "data": {
+          "id": "e-used_in-2-4",
+          "source": "2",
+          "target": "4",
+          "kind": "used_in",
+          "status": "incomplete",
+          "match": "ambiguous",
+          "refs": [
+            "gift_card_history"
+          ],
+          "ref_count": 1,
+          "important": false
+        },
+        "classes": "used-in incomplete ambiguous"
+      },
+      {
+        "data": {
+          "id": "e-used_in-ph-gift_card-5f4bd08dab58-5",
+          "source": "ph-gift_card-5f4bd08dab58",
+          "target": "5",
+          "kind": "used_in",
+          "status": "incomplete",
+          "match": "exact",
+          "refs": [
+            "payment"
+          ],
+          "ref_count": 1,
+          "important": false
+        },
+        "classes": "used-in incomplete"
+      }
+    ]
+  }
+}

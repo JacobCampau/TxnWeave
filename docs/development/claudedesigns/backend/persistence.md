@@ -1,6 +1,6 @@
 # Backend: Persistence (SQLite and ORM)
 
-- **Status:** Agreed (from `backend-graphing-design.md` v3). Updated 2026-11-17 (user decisions): `documents.important` (BD27) and the `investigation_settings` table (BD30).
+- **Status:** Agreed (from `backend-graphing-design.md` v3). Updated 2026-11-17 (user decisions): `documents.important` (BD27) and the `investigation_settings` table (BD30). Updated 2026-11-24 (user decision): the `node_positions` table (BD35, full rules in [node-positions.md](node-positions.md)).
 - **Scope:** How investigation data is stored: the SQLite file and its location, the SQLAlchemy 2.0 models, every table, column and CHECK constraint, indexes, where the duplicate-key check runs, how updates replace child rows, and the storage-level decisions (the database is the autosave, retention of old investigations, unencrypted storage, last write wins). Field meanings and validation are in [data-model.md](data-model.md).
 - **Master plan:** [../master-plan.md](../master-plan.md)
 - **Related:** [data-model.md](data-model.md) (fields and key tuple), [api.md](api.md) (writes that commit, investigation delete), [build-plan.md](build-plan.md) (config, Compose volume)
@@ -31,6 +31,7 @@ The file location comes from `TXNWEAVE_DB_PATH` (default `./data/txnweave.db` lo
 | `investigations` | `id INTEGER PK`, `name TEXT NULL`, `created_at TEXT NOT NULL`, `updated_at TEXT NOT NULL`, `last_exported_at TEXT NULL` |
 | `documents` | `id INTEGER PK`, `investigation_id INTEGER NOT NULL FK→investigations.id ON DELETE CASCADE`, `type TEXT NOT NULL CHECK(type IN ('transaction','gift_card','online_order','misc'))`, `notes TEXT NULL`, `important INTEGER NOT NULL DEFAULT 0 CHECK(important IN (0,1))`, `created_at TEXT NOT NULL`, `updated_at TEXT NOT NULL` |
 | `investigation_settings` | `investigation_id INTEGER PK FK→investigations.id ON DELETE CASCADE`; `transaction_color`, `gift_card_color`, `online_order_color`, `misc_color` `TEXT NOT NULL CHECK(... IN ('ink','slate','mist','rose','crimson'))`; `transaction_shape`, `gift_card_shape`, `online_order_shape`, `misc_shape` `TEXT NOT NULL CHECK(... IN ('ellipse','rectangle','round-rectangle','triangle','diamond','hexagon','octagon','star'))`; `important_edge_color TEXT NOT NULL CHECK(important_edge_color IN ('ink','slate','crimson'))`; `updated_at TEXT NOT NULL`. The distinctness rule (BD29) is checked in the service layer |
+| `node_positions` | `investigation_id INTEGER NOT NULL FK→investigations.id ON DELETE CASCADE`, `node_id TEXT NOT NULL` (document ID as text or placeholder ID, no FK), `x REAL NOT NULL`, `y REAL NOT NULL`, `PRIMARY KEY(investigation_id, node_id)`. Decision, write rules and cleanup: BD35, 8.1 to 8.6 in [node-positions.md](node-positions.md) |
 | `transactions` | `document_id INTEGER PK FK→documents.id ON DELETE CASCADE`, `transaction_number TEXT NOT NULL`, `date TEXT NOT NULL`, `time TEXT NOT NULL`, `store_number TEXT NOT NULL`, `register_number TEXT NULL` |
 | `gift_cards` | `document_id PK FK`, `gift_card_number TEXT NOT NULL`, `activation_transaction_number TEXT NOT NULL`, `activation_date TEXT NOT NULL`, `activation_time TEXT NOT NULL`, `activation_store_number TEXT NULL`, `activation_amount_cents INTEGER NULL CHECK(activation_amount_cents BETWEEN 0 AND 9999999)` |
 | `gift_card_history_entries` | `id INTEGER PK`, `gift_card_document_id INTEGER NOT NULL FK→documents.id ON DELETE CASCADE`, `position INTEGER NOT NULL`, `transaction_number TEXT NOT NULL`, `date TEXT NOT NULL`, `time TEXT NOT NULL`, `store_number TEXT NULL`, `amount_cents INTEGER NULL CHECK(amount_cents BETWEEN -9999999 AND 9999999)` |
@@ -40,7 +41,7 @@ The file location comes from `TXNWEAVE_DB_PATH` (default `./data/txnweave.db` lo
 
 Blank optional values are stored as `NULL`. The "blank counts as `""`" rule (BD1) is applied in Python when the key tuple is built, not in the database.
 
-Placeholders (incomplete nodes) are never stored (B4, [relationship-resolution.md](relationship-resolution.md)).
+Placeholders (incomplete nodes) are never stored (B4, [relationship-resolution.md](relationship-resolution.md)). Only their position may be stored, keyed by placeholder ID (BD35).
 
 ## Indexes
 - `documents(investigation_id, type)`
@@ -76,4 +77,4 @@ One class per table in `db/models.py`, with plain one-to-one and one-to-many `re
 - [ ] `important` accepts only 0 and 1, and defaults to 0.
 
 ## Course requirements
-Traces: FR-01, FR-13, FR-14, FR-18 (full map in [../project/traceability.md](../project/traceability.md)). BD21 and BD23 have no FR behind them; they are listed as untraced there.
+Traces: FR-01, FR-10, FR-13, FR-14, FR-18 (full map in [../project/traceability.md](../project/traceability.md)). BD21 and BD23 have no FR behind them; they are listed as untraced there.

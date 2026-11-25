@@ -1,12 +1,12 @@
 # Backend: CSV Save and Load
 
-- **Status:** Agreed (from `backend-graphing-design.md` v3, behavior section 5 and the `ImportReport` interface). Updated 2026-11-17 (user decisions): BD33 (`important` column and optional `settings` section). Updated 2026-11-23 (user decision, Starting An Investigation diagram): BD34, a file without the validity marker is rejected with 422; best-effort parsing of markerless files is dropped.
-- **Scope:** `services/csv_service.py`, `GET .../export.csv` and `POST /investigations/import`: the single sectioned CSV file, the validity marker, `ref` / `parent_ref` row joins, cell writing rules (including formula escaping and money), import parsing, the two-step dry-run import, skipped-row rules, the `ImportReport`, and which conditions return an error status. The full column layout is deferred to a future CSV design.
+- **Status:** Agreed (from `backend-graphing-design.md` v3, behavior section 5 and the `ImportReport` interface). Updated 2026-11-17 (user decisions): BD33 (`important` column and optional `settings` section). Updated 2026-11-23 (user decision, Starting An Investigation diagram): BD34, a file without the validity marker is rejected with 422; best-effort parsing of markerless files is dropped. Updated 2026-11-24 (user-approved implementation plan): the full column layout, 5.10, including row 2 and the `unknown_section` warning.
+- **Scope:** `services/csv_service.py`, `GET .../export.csv` and `POST /investigations/import`: the single sectioned CSV file, the validity marker, the name row, the full column layout of every section, `ref` / `parent_ref` row joins, cell writing rules (including formula escaping and money), import parsing, the two-step dry-run import, skipped-row rules, the `ImportReport`, and which conditions return an error status.
 - **Master plan:** [../master-plan.md](../master-plan.md) (B6 digit strings, B7 cents, B8 date formats, BD25 signs)
 - **Related:** [data-model.md](data-model.md) (rows are validated against `*In` models), [relationship-resolution.md](relationship-resolution.md) (references re-resolve on load), [api.md](api.md) (endpoint rows, B16 `last_exported_at`), [../ui/app-shell.md](../ui/app-shell.md) (Save, Load, LoadReportDialog)
 
 ## Non-goals
-- The full CSV column layout. This design fixes the endpoints, the validity marker, the error report, the section style, the key and reference columns, and the money and escaping rules. Everything else goes in the CSV design.
+- Node positions (user decision 2026-11-24, BD35). Export writes none and import creates none, so a loaded investigation gets a fresh automatic layout. A future optional `layout` section keyed by `ref` is follow-up F22.
 
 ## Decisions
 | # | Decision | Rationale | Alternatives considered |
@@ -27,7 +27,7 @@
 - Choosing where to save the file is done in the browser.
 
 5.2 **Validity marker (BD12):**
-- Row 1 is exactly `TXNWEAVE_SAVE,format_version,1`. Row 2 holds the investigation name and export time.
+- Row 1 is exactly `TXNWEAVE_SAVE,format_version,1`. Row 2 holds the investigation name and export time (5.10).
 - **Matching rule:** after removing a UTF-8 BOM, the first three cells of row 1 must be exactly `TXNWEAVE_SAVE`, `format_version` and `1`. Any further cells in row 1 must be blank (a spreadsheet re-save may pad the row with trailing commas). An empty file also fails.
 - A file that fails the rule is rejected with 422 `not_a_txnweave_file` (BD34). It never reaches the `ImportReport`.
 
@@ -37,7 +37,7 @@
 - The `transactions` section holds all four key columns: `transaction_number`, `date`, `store_number`, `register_number`. A blank `register_number` cell means a blank register (BD1). A blank `store_number` cell is a row problem (5.7), because store is required (BD26).
 - Amounts are written exactly as stored, each in its own document's point of view (BD25). Export never flips a sign: payment amounts are in transaction view, and activation and history amounts are in card view.
 - References (activation, history, Misc) are written as their own field columns, not as `ref` links. They are re-resolved by [relationship resolution](relationship-resolution.md) (section 3) on load.
-- The exact column order is left to the CSV design.
+- The exact sections, columns and order are in 5.10.
 
 5.4 **Placeholders are not exported.** They are recreated on load.
 
@@ -83,6 +83,62 @@
   - A duplicate setting row: the first one is kept, and the duplicate gets an `invalid_setting` warning.
   - If every setting equals the default, no `investigation_settings` row is created (BD30).
 
+5.10 **Column layout** (user-approved implementation plan, 2026-11-24):
+- **Row 1** is the marker (BD12, 5.2).
+- **Row 2** is `investigation_name,<name>,exported_at,<ISO 8601 UTC>`, for example `investigation_name,Store 042 card ring,exported_at,2026-11-24T15:30:00Z`.
+  - Export: a `null` name is written as a blank cell. A blank name means "Untitled investigation". The name is free text, so 5.5 escaping applies.
+  - Import: row 2 gives the new investigation's name (blank means `null`). Only the name is used. If row 2 is missing or malformed (its first cell is not `investigation_name`), the investigation gets no name, and **no problem is reported**.
+- **Sections:** each section is a blank row, then a row `section,<name>`, then a header row, then the data rows. Export writes the sections in this order:
+
+| # | Section | Header row (exact column order on export) |
+|---|---|---|
+| 1 | `transactions` | `ref,transaction_number,date,time,store_number,register_number,important,notes` |
+| 2 | `gift_cards` | `ref,gift_card_number,activation_transaction_number,activation_date,activation_time,activation_store_number,activation_amount ($),important,notes` |
+| 3 | `online_orders` | `ref,order_number,placed_date,placed_time,customer_city,customer_state,pickup_store_number,important,notes` |
+| 4 | `misc` | `ref,name,date,time,transaction_number,order_number,important,notes` |
+| 5 | `payments` | `parent_ref,type,gift_card_number,amount ($)`. `parent_ref` is a `T`, `O` or `M` ref |
+| 6 | `gift_card_history` | `parent_ref,transaction_number,date,time,store_number,amount ($)`. `parent_ref` is a `G` ref |
+| 7 | `settings` | `setting,color,shape` (BD33, always last) |
+
+- **Column to field mapping:** every column name equals the [data-model](data-model.md) field name, except: `activation_*` columns map to `activation.*`; a column ending ` ($)` maps to the matching `*_cents` field (`amount ($)` → `amount_cents`, `activation_amount ($)` → `activation.amount_cents`), written and parsed per BD11, 5.5 and 5.6. Optional fields that are `null` are written as blank cells, and blank cells are read as `null`.
+- **Refs (BD10):** assigned at export, numbered from 1 within each type in the 3.12 order: `T1, T2, …`, `G1, …`, `O1, …`, `M1, …`. Payment rows are written in their parent's order (all `T` parents, then `O`, then `M`), then in the parent's row order (`position`). History rows are written in `G` order, then `position`.
+- **Import parsing:**
+  - Header cells are matched **by name, not by position**. Columns may appear in any order. Unknown extra columns are ignored.
+  - If a required column is missing from a section's header row, every data row of that section gets a `missing_required` problem for that field (and is skipped, per 5.7). A missing optional column means blank for every row (and `false` for `important`, 5.9).
+  - An unknown section name gives one `warning` with code `unknown_section` (`section` is the unknown name), and its rows are skipped.
+  - Data rows before the first `section` row are ignored (rows 1 and 2 are the marker and name rows). A fully blank row is a separator, never a data row.
+
+Example (the `online_orders` and `misc` sections are left out here for brevity):
+```csv
+TXNWEAVE_SAVE,format_version,1
+investigation_name,Store 042 card ring,exported_at,2026-11-24T15:30:00Z
+
+section,transactions
+ref,transaction_number,date,time,store_number,register_number,important,notes
+T1,00482913,03-14-2026,18:05,042,003,true,
+
+section,gift_cards
+ref,gift_card_number,activation_transaction_number,activation_date,activation_time,activation_store_number,activation_amount ($),important,notes
+G1,6006491234567890123,00470001,03-01-2026,10:12,042,100.00,false,Bought with cash
+
+section,payments
+parent_ref,type,gift_card_number,amount ($)
+T1,gift_card,6006491234567890123,25.00
+T1,cash,,5.50
+
+section,gift_card_history
+parent_ref,transaction_number,date,time,store_number,amount ($)
+G1,00482913,03-14-2026,18:05,042,-25.00
+
+section,settings
+setting,color,shape
+transaction,slate,ellipse
+gift_card,crimson,round-rectangle
+online_order,ink,hexagon
+misc,rose,diamond
+important_edge,ink,
+```
+
 ## `ImportReport`
 ```json
 {
@@ -96,7 +152,7 @@
   ]
 }
 ```
-`severity` is `error` (the row was skipped) or `warning` (the row was imported). An `ImportReport` exists only for files with a valid marker, so it has no `valid_marker` field (removed by BD34). Other codes: `unknown_parent_ref`, `parent_skipped`, `missing_required`, `out_of_range`, `invalid_setting`, `indistinct_styles` (5.9). Settings problems use `section: "settings"`.
+`severity` is `error` (the row was skipped) or `warning` (the row was imported). An `ImportReport` exists only for files with a valid marker, so it has no `valid_marker` field (removed by BD34). Other codes: `unknown_parent_ref`, `parent_skipped`, `missing_required`, `out_of_range`, `invalid_setting`, `indistinct_styles` (5.9), `unknown_section` (5.10, always a `warning`). Settings problems use `section: "settings"`.
 
 The non-dry-run response is `{investigation, report}` (201).
 
@@ -120,6 +176,15 @@ The non-dry-run response is `{investigation, report}` (201).
 - [ ] Importing a file with no `settings` section and no `important` column imports every valid document, with defaults and `false`, and reports no settings problem.
 - [ ] A `settings` row `misc,purple,diamond` gives a `warning` with code `invalid_setting`, Misc keeps its default, and the documents still import. Two identical node styles give `indistinct_styles`, and all node styles revert to the defaults.
 - [ ] Export, then import, keeps every `important` flag and every setting.
+- [ ] Column layout (5.10):
+  - Export writes row 2 as `investigation_name,<name>,exported_at,<ISO 8601 UTC>` (blank name cell for an unnamed investigation), then the seven sections in the 5.10 order, each with a blank row, a `section,<name>` row and the exact 5.10 header row.
+  - Export numbers refs from 1 per type in 3.12 order, and writes payment and history rows in parent order, then row order.
+  - Import names the new investigation from row 2. A file with a missing or malformed row 2 imports with no name and no problem.
+  - Import of a section whose columns are reordered, or have an extra unknown column, gives the same result as the exported order.
+  - A `transactions` header with no `date` column gives a `missing_required` problem (`field: "date"`) on every transaction row.
+  - A `section,layout` block gives one `unknown_section` warning, its rows are skipped, and the other sections import.
+  - Data rows before the first `section` row are ignored.
+  - Export, then import, of an investigation with every document type, payments and history recreates the same documents, fields and row order.
 
 ## Course requirements
 Traces: FR-11, FR-13, FR-14, FR-19, FR-22, UC04, UC05, UC08 (full map in [../project/traceability.md](../project/traceability.md)). F8 (UC04 "sheet" wording) is still open.

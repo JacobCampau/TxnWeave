@@ -100,6 +100,7 @@ The `−(...)` is the sign flip from BD25. Activation details are never prefille
 - The user must fill in the store if the placeholder didn't know it (BD26). Any store matches the references that had no store.
 - If the user keeps the prefilled key parts and adds a register number, the references still match, because they don't know the register.
 - If the user changes a prefilled date or store, the references no longer match and the placeholder stays. That is correct: the documents disagree, and the agent can see it.
+- The promoted document's node takes over the placeholder's saved position (BD37). That happens in `document_service`, not here: `resolve` stays pure and knows nothing about positions ([node-positions.md](node-positions.md) 8.6).
 
 3.9 **Edge merging:** links with the same `(source, target, kind)` merge into one edge. `refs`: the distinct `ref` values, sorted. `ref_count`: the number of underlying references. `match`: `"exact"` if **any** underlying reference matched this target uniquely, otherwise `"ambiguous"`.
 

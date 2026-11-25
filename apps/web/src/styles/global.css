@@ -83,7 +83,43 @@ body {
 }
 
 .top-bar__name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-left: auto;
+}
+
+/* D30: the name is a button that turns into an input */
+.top-bar__name-button {
+    padding: 4px 6px;
+    font: inherit;
+    color: var(--text-on-dark);
+    background: none;
+    border: 1px dashed transparent;
+    cursor: text;
+}
+
+.top-bar__name-button:hover {
+    border-color: var(--color-mist);
+}
+
+.top-bar__name-input {
+    width: 260px;
+    padding: 4px 6px;
+    font: inherit;
+    color: var(--text-on-light);
+    background: var(--color-mist);
+    border: 1px solid var(--color-slate);
+}
+
+/* Error text on the ink bar: white, and the "Error:" word carries the meaning */
+.top-bar__name-error {
+    font-size: 13px;
+    color: var(--text-on-dark);
+}
+
+.top-bar__user-slot {
+    width: 32px;
 }
 
 .top-bar__actions {
@@ -130,12 +166,144 @@ body {
 }
 
 /* Investigation page: mist graph canvas (D20) */
+.investigation-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.investigation-page__body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+/* Investigation toolbar: slate, white text, 1px ink bottom border (color-system) */
+.graph-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--color-slate);
+    color: var(--text-on-dark);
+    border-bottom: 1px solid var(--color-ink);
+}
+
+.graph-toolbar__toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+}
+
+.graph-toolbar :focus-visible,
+.property-panel :focus-visible {
+    outline-color: var(--color-mist);
+}
+
+/* PropertyPanel drawer: slate, white text, 1px ink left border (color-system) */
+.property-panel {
+    width: 340px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--color-slate);
+    color: var(--text-on-dark);
+    border-left: 1px solid var(--color-ink);
+}
+
+.property-panel__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.property-panel__header h2 {
+    margin: 0;
+    font-size: 18px;
+    overflow-wrap: anywhere;
+}
+
+.property-panel h3 {
+    margin: 16px 0 4px;
+    font-size: 15px;
+}
+
+.property-panel ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.property-panel__fields {
+    margin: 0;
+}
+
+.property-panel__fields div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 0;
+}
+
+.property-panel__fields dt {
+    font-weight: 700;
+}
+
+.property-panel__fields dd {
+    margin: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.property-panel__notes {
+    white-space: pre-wrap;
+}
+
+.property-panel__link {
+    padding: 0;
+    font: inherit;
+    color: var(--text-on-dark);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.property-panel > .button--primary {
+    margin-top: 16px;
+}
+
 .investigation-canvas {
+    position: relative;
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--color-mist);
+}
+
+/* Cytoscape draws into this; it fills the whole canvas. */
+.graph-canvas {
+    position: absolute;
+    inset: 0;
+}
+
+/* UI-4: centered over the (empty) graph */
+.graph-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    pointer-events: none;
+}
+
+.graph-empty .button {
+    pointer-events: auto;
 }
 
 /* Empty state: black italic 20px (D23) */
@@ -148,6 +316,8 @@ body {
 /* Documents page: slate list pane + mist form pane */
 .documents-list {
     width: 360px;
+    flex-shrink: 0;
+    overflow-y: auto;
     padding: 16px;
     background: var(--color-slate);
     color: var(--text-on-dark);
@@ -155,7 +325,408 @@ body {
 
 .documents-form {
     flex: 1;
+    overflow-y: auto;
     padding: 16px;
     background: var(--color-mist);
     color: var(--text-on-light);
+}
+
+/* Secondary button on light backgrounds */
+.button--secondary {
+    background: var(--color-slate);
+    color: var(--text-on-dark);
+}
+
+/* Destructive button (Delete, Discard): rose, black text, 1px ink border (color-system) */
+.button--destructive {
+    background: var(--color-rose);
+    color: var(--text-on-light);
+    border: 1px solid var(--color-ink);
+}
+
+/* Disabled button: mist, dashed slate border, never transparent (color-system) */
+.button--disabled,
+.button:disabled {
+    background: var(--color-mist);
+    color: var(--text-on-light);
+    border: 1px dashed var(--color-slate);
+    cursor: not-allowed;
+}
+
+/* Document list (UI-10, UI-11) */
+.document-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* "New document" type dropdown: styled like the primary button */
+.new-document-select {
+    padding: 6px 10px;
+    font: inherit;
+    background: var(--color-crimson);
+    color: var(--text-on-dark);
+    border: none;
+    cursor: pointer;
+}
+
+/* The open list uses normal light colors so the options stay readable */
+.new-document-select option {
+    background: var(--color-mist);
+    color: var(--text-on-light);
+}
+
+.document-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* List item (normal): slate, white text, 1px ink divider (color-system).
+   Each item is a button, so the browser's button look is reset here. */
+.document-list__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: 8px 4px;
+    font: inherit;
+    text-align: left;
+    background: var(--color-slate);
+    color: var(--text-on-dark);
+    border: none;
+    border-bottom: 1px solid var(--color-ink);
+    cursor: pointer;
+}
+
+/* List item (selected): ink background (color-system) */
+.document-list__item--selected {
+    background: var(--color-ink);
+}
+
+/* List item (incomplete): 4px rose left border plus the "Incomplete" badge (color-system).
+   Keeps its normal or selected background. */
+.document-list__item--incomplete {
+    border-left: 4px solid var(--color-rose);
+}
+
+.document-list__count {
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* "Incomplete" badge: rose, black text (color-system) */
+.badge--incomplete {
+    background: var(--color-rose);
+    color: var(--text-on-light);
+}
+
+/* The note above an incomplete node's form */
+.placeholder-note {
+    max-width: 720px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--color-rose);
+}
+
+.placeholder-note .badge {
+    margin-left: 0;
+    margin-right: 6px;
+}
+
+.placeholder-note p,
+.placeholder-note ul {
+    margin: 4px 0;
+}
+
+.document-list__type,
+.document-list__date {
+    font-size: 13px;
+}
+
+.document-list__title {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+/* Document forms (NodeEditor) */
+.document-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 720px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Text inputs / dropdowns: mist, black text, 1px slate border (color-system) */
+.form-field__input {
+    padding: 6px 8px;
+    font: inherit;
+    background: var(--color-mist);
+    color: var(--text-on-light);
+    border: 1px solid var(--color-slate);
+}
+
+/* Input in error: 2px crimson border plus a black "Error:" message (color-system) */
+.form-field__input--error {
+    border: 2px solid var(--color-crimson);
+}
+
+.form-field__hint,
+.form-field__error {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-on-light);
+}
+
+.form-error-summary {
+    padding: 8px 12px;
+    border: 2px solid var(--color-crimson);
+    color: var(--text-on-light);
+}
+
+/* Repeatable rows: payments, activation and gift card history (D16, UI-16) */
+.repeat-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--color-slate);
+}
+
+.repeat-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-slate);
+}
+
+.repeat-row__remove {
+    align-self: center;
+}
+
+.repeat-section__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.repeat-section__total {
+    font-weight: 700;
+}
+
+.document-form__actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Delete sits apart from Save and Cancel, on the far right */
+.document-form__delete {
+    margin-left: auto;
+}
+
+/* Dialogs: mist, black text, 1px ink border; backdrop is ink at 70% (color-system, D22).
+   The backdrop spells out ink's RGB value because ::backdrop can't always read :root tokens. */
+.confirm-dialog {
+    max-width: 480px;
+    padding: 16px 20px;
+    background: var(--color-mist);
+    color: var(--text-on-light);
+    border: 1px solid var(--color-ink);
+}
+
+.confirm-dialog::backdrop {
+    background: rgb(19 19 19 / 70%);
+}
+
+.confirm-dialog h2 {
+    margin-top: 0;
+}
+
+.confirm-dialog__actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Investigation settings page (D26): mist background, one centered 720px column */
+.settings-page {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--color-mist);
+    color: var(--text-on-light);
+}
+
+.settings-page__column {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* API error banner: crimson, white text; Retry is ink with white text (color-system) */
+.api-error-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 16px;
+    background: var(--color-crimson);
+    color: var(--text-on-dark);
+}
+
+.api-error-banner__retry {
+    background: var(--color-ink);
+    color: var(--text-on-dark);
+}
+
+.api-error-banner :focus-visible {
+    outline-color: var(--color-mist);
+}
+
+/* Appearance table on the Investigation settings page (D27). Colors come from the tokens. */
+.appearance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.appearance-table th,
+.appearance-table td {
+    padding: 8px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--color-slate);
+}
+
+.appearance-table__color {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.style-preview {
+    display: block;
+}
+
+.settings-page__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.settings-page__loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-slate);
+    border-top-color: var(--color-crimson);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Toasts (UI-18): bottom-right. Success slate, error crimson, white text, 1px ink border */
+.toast-region {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 420px;
+    padding: 10px 14px;
+    color: var(--text-on-dark);
+    border: 1px solid var(--color-ink);
+}
+
+.toast--success {
+    background: var(--color-slate);
+}
+
+.toast--error {
+    background: var(--color-crimson);
+}
+
+.toast__close {
+    margin-left: auto;
+    font: inherit;
+    color: var(--text-on-dark);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.toast :focus-visible {
+    outline-color: var(--color-mist);
+}
+
+/* StartDialog (UI-1, UI-30) */
+.start-dialog {
+    width: 480px;
+}
+
+.start-dialog__option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px 0;
+    border-top: 1px solid var(--color-slate);
+}
+
+.start-dialog__option h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.start-dialog__option p {
+    margin: 0;
+}
+
+.start-dialog__option .form-field__input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* LoadReportDialog (UI-17) */
+.load-report {
+    width: 560px;
+}
+
+.load-report__problems {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-left: 18px;
 }

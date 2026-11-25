@@ -1,6 +1,6 @@
 # TxnWeave Master Plan
 
-- **Status:** Agreed (reorganized from `backend-graphing-design.md` v3 and `page-and-ui-layout.md` v2, 2026-11-17; no content changes). Updated 2026-11-17 with the user's course-requirement decisions: P1, P2, BD27 here; BD28 to BD33 and D26 to D33 in feature docs ([history](design-history.md)). Updated 2026-11-23 to follow the activity diagrams: G4 narrowed; BD34 and D34 to D37 in feature docs.
+- **Status:** Agreed (reorganized from `backend-graphing-design.md` v3 and `page-and-ui-layout.md` v2, 2026-11-17; no content changes). Updated 2026-11-17 with the user's course-requirement decisions: P1, P2, BD27 here; BD28 to BD33 and D26 to D33 in feature docs ([history](design-history.md)). Updated 2026-11-23 to follow the activity diagrams: G4 narrowed; BD34 and D34 to D37 in feature docs. Updated 2026-11-24: `@types/cytoscape` dropped from the tech stack (`cytoscape` ≥3.35 ships its own types). Updated 2026-11-24 (user decision): node positions are saved on the server (D8 amended; BD35 to BD37 in the new [backend/node-positions.md](backend/node-positions.md); D38, UI-36 to UI-38). Updated 2026-11-24 (user-approved implementation plan): the CSV column layout is now in [backend/csv-save-load.md](backend/csv-save-load.md) 5.10, so it is no longer "still to come".
 - **Source plans:** `docs/development/initial-plans.md`, `docs/development/CS420_Project_Discovery and Specification.pdf`, `docs/development/CS420_Project_Concept.pdf` (unread, F19)
 - **History:** [design-history.md](design-history.md) holds the original version metadata, changelogs and follow-ups.
 
@@ -21,7 +21,7 @@ The project is also a CS 420 (HCI) course project. Where its pieces are:
 - **Design-to-requirement map:** every design element mapped to an FR or UC (P2) in [project/traceability.md](project/traceability.md).
 - **Build order:** the waves in P1.
 
-Follow-ups that are still open (F7 to F10, F12 to F15, F19 to F21) don't change any agreed decision.
+Follow-ups that are still open (F7 to F10, F12 to F15, F19 to F22) don't change any agreed decision.
 
 ## Goals
 **Backend**
@@ -34,7 +34,7 @@ Follow-ups that are still open (F7 to F10, F12 to F15, F19 to F21) don't change 
 **UI**
 - An agent can start, resume, or load an investigation immediately on opening the app.
 - An agent can create and edit Transaction, Gift Card, Online Order and Misc documents through validated forms.
-- An agent can view the resulting graph, explore it (pan, zoom, drag, inspect a node), and export it as a PNG in landscape or portrait.
+- An agent can view the resulting graph, explore it (pan, zoom, drag, inspect a node, with every node's position kept across reloads), and export it as a PNG in landscape or portrait.
 - Incomplete nodes are always visible and easy to find on both pages.
 - The UI uses only the five palette colors, with WCAG-compliant black or white text.
 
@@ -51,7 +51,7 @@ Feature-specific non-goals live in their feature docs. These apply everywhere:
 
 ## Cross-cutting principles
 1. **Incomplete, never an error.** Missing or uncertain data becomes an incomplete node or edge, never an error status (G2). See [relationship-resolution](backend/relationship-resolution.md).
-2. **Backend owns structure, frontend owns presentation** (G1, B12). Nodes, placeholders, matching, edges, status, classes, masking and titles are backend work. Labels, styles, layout and PNG export are frontend work. Exact split: [graph-output](backend/graph-output.md).
+2. **Backend owns structure, frontend owns presentation** (G1, B12). Nodes, placeholders, matching, edges, status, classes, masking and titles are backend work. Labels, styles, layout and PNG export are frontend work. The backend only stores and returns the node positions the frontend saves (BD35). Exact split: [graph-output](backend/graph-output.md).
 3. **Card numbers are sensitive** (B13, D10). Full numbers appear only in request/response bodies for documents, the PropertyPanel and the form.
 4. **Every color comes from the five-color palette, text is black or white** (D19). See [color-system](ui/color-system.md).
 5. **Small, reviewable steps.** The author reviews all code in manual-approval mode. Keep changes small and explainable (G5).
@@ -103,7 +103,7 @@ These decisions affect several feature docs, so they live here. Feature docs ref
 | Layer | Choice |
 |---|---|
 | Backend | Python ≥3.12, FastAPI, Pydantic, SQLAlchemy 2.0 typed ORM, SQLite file (B1). `python-multipart` for uploads. Dev: `pytest`, `httpx` |
-| Frontend | React 19, Vite 6, TypeScript, `react-router-dom`, `cytoscape` + `@types/cytoscape` |
+| Frontend | React 19, Vite 6, TypeScript, `react-router-dom`, `cytoscape` (≥3.35, bundles its own TypeScript types, so no `@types/cytoscape`) |
 | Runtime | Docker Compose, ports bound to 127.0.0.1. Remote access to the hosted instance is through a VPN. The Vite dev server proxies `/api` to `http://api:8000` |
 
 ## Architecture
@@ -112,7 +112,7 @@ These decisions affect several feature docs, so they live here. Feature docs ref
 - **Data flow:** form → `POST/PUT /documents` (commits immediately) → `GET /graph` returns Cytoscape elements → `graphMapper.ts` adds labels → Cytoscape renders.
 
 ## Conventions
-- **Decision IDs** are kept from the original docs so cross-references stay valid: `G1`–`G5` backend goals; `P1`, `P2` project decisions; `B1`–`B17` and `BD1`–`BD34` backend decisions (there is no BD20); `D1`–`D37` UI decisions; `R1`–`R6` reference rules; behavior numbers `1.x`–`7.x` are the backend behavior sections; UI behaviors are `UI-1` to `UI-35`; `F1` to `F21` follow-ups (all in [design-history.md](design-history.md)). Course-document IDs are kept exactly as the PDF writes them: `FR-01` to `FR-27`, `UC01` to `UC10`. Project-level IDs from the course pass: `S1`, `S2` success criteria, `NQ-1` to `NQ-8` quality goals, `RK-1` to `RK-6` risks, `S-1` suggestion.
+- **Decision IDs** are kept from the original docs so cross-references stay valid: `G1`–`G5` backend goals; `P1`, `P2` project decisions; `B1`–`B17` and `BD1`–`BD37` backend decisions (there is no BD20); `D1`–`D38` UI decisions; `R1`–`R6` reference rules; behavior numbers `1.x`–`8.x` are the backend behavior sections (`8.x` is node positions); UI behaviors are `UI-1` to `UI-38`; `F1` to `F22` follow-ups (all in [design-history.md](design-history.md)). Course-document IDs are kept exactly as the PDF writes them: `FR-01` to `FR-27`, `UC01` to `UC10`. Project-level IDs from the course pass: `S1`, `S2` success criteria, `NQ-1` to `NQ-8` quality goals, `RK-1` to `RK-6` risks, `S-1` suggestion.
 - Each decision is written out in full in exactly one doc. Other docs cite the ID.
 - Forms and CSV show dates as `MM-DD-YYYY`. The API and database use ISO (B8).
 - Negative amounts are displayed as `-$25.00`.
@@ -127,17 +127,18 @@ These decisions affect several feature docs, so they live here. Feature docs ref
 | [backend/relationship-resolution.md](backend/relationship-resolution.md) | Reference rules R1–R6, matching, ambiguity, placeholders, prefill, promotion, edge merging, `referenced_by`, money flip |
 | [backend/graph-output.md](backend/graph-output.md) | `GET /graph`, `GraphOut`, node/edge data fields, classes, frontend vs backend split |
 | [backend/csv-save-load.md](backend/csv-save-load.md) | CSV export and import: marker, sections, cell rules, parsing, dry run, `ImportReport` |
+| [backend/node-positions.md](backend/node-positions.md) | Saved node positions: `node_positions` table, `PUT`/`PATCH .../layout`, delete cleanup, promotion carry-over (BD35 to BD37, 8.x) |
 | [backend/build-plan.md](backend/build-plan.md) | Backend file map, dependencies, Compose volume, build order |
 | [ui/color-system.md](ui/color-system.md) | Palette tokens, contrast tables, per-element color usage, transparency rule |
 | [ui/app-shell.md](ui/app-shell.md) | Routes, TopBar, StartDialog and the start flow (Starting An Investigation diagram), unsaved-changes prompts, Save/Load, banners, toasts, keyboard, width |
-| [ui/investigation-page.md](ui/investigation-page.md) | Graph canvas, node/edge styles, toolbar, PropertyPanel, PNG export |
+| [ui/investigation-page.md](ui/investigation-page.md) | Graph canvas, node/edge styles, layout, saved positions and new-node placement, toolbar, PropertyPanel, PNG export |
 | [ui/documents-page.md](ui/documents-page.md) | Document list, per-type forms, inputs, validation, repeatable rows, delete |
 | [ui/settings-page.md](ui/settings-page.md) | Investigation settings page: per-type color and shape, important-edge color, reset to defaults, Delete investigation |
 | [ui/build-plan.md](ui/build-plan.md) | Frontend dependencies and build order, tagged by wave |
 | [project/context.md](project/context.md) | Draft. Problem statement, stakeholders, persona, interview findings, success criteria, quality goals (NQ), risks (RK), similar systems, waves |
 | [project/requirements.md](project/requirements.md) | FR-01 to FR-27 and UC01 to UC10 with coverage status, wave, and terminology mapping |
 | [project/traceability.md](project/traceability.md) | Every decision, behavior and component mapped to FR or UC IDs (P2), plus the untraced list |
-| [design-history.md](design-history.md) | Original statuses, changelogs, follow-ups F1 to F19 (closed and open), and the note on the kept historical docs |
+| [design-history.md](design-history.md) | Original statuses, changelogs, follow-ups F1 to F22 (closed and open), and the note on the kept historical docs |
 | `backend-graphing-design.md`, `page-and-ui-layout.md` | **Historical records, kept on purpose and superseded.** Don't implement from them. Exempt from the 250-line limit ([history](design-history.md)) |
 
-Still to come: a CSV save/load format design (full column layout) and an IAM design.
+Still to come: an IAM design.

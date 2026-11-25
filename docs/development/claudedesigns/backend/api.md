@@ -1,6 +1,6 @@
 # Backend: API (investigations and documents)
 
-- **Status:** Agreed (from `backend-graphing-design.md` v3). Updated 2026-11-17 (user decisions): BD28 importance toggle, BD31 settings endpoints, BD32 rename rules. Updated 2026-11-23: import 422 `not_a_txnweave_file` (BD34); Resume is looked up on every open (D34).
+- **Status:** Agreed (from `backend-graphing-design.md` v3). Updated 2026-11-17 (user decisions): BD28 importance toggle, BD31 settings endpoints, BD32 rename rules. Updated 2026-11-23: import 422 `not_a_txnweave_file` (BD34); Resume is looked up on every open (D34). Updated 2026-11-24 (user decision): layout endpoints (BD36), position cleanup on delete and promotion (8.5, 8.6), all in [node-positions.md](node-positions.md).
 - **Scope:** The full HTTP surface under `/api`: the endpoint table (including graph, export and import rows, whose details live in their own docs), the error body, the Investigation entity and `InvestigationOut`, investigation behavior (create, list, resume, delete, retention), document create/update/delete rules and status codes, JSON examples, and the sensitive-data handling rules for requests, responses and logs.
 - **Master plan:** [../master-plan.md](../master-plan.md)
 - **Related:** [data-model.md](data-model.md) (`DocumentIn` / `DocumentOut` fields), [persistence.md](persistence.md) (commits, cascades, uniqueness check, BD7 retention), [relationship-resolution.md](relationship-resolution.md) (placeholders, `referenced_by`, promotion), [graph-output.md](graph-output.md) (`GraphOut`), [csv-save-load.md](csv-save-load.md) (export/import), [../ui/app-shell.md](../ui/app-shell.md) (StartDialog, Save/Load)
@@ -21,7 +21,7 @@
 |---|---|---|
 | `id` | `int` | |
 | `name` | `str \| None`, at most 200 characters | |
-| `created_at`, `updated_at` | `datetime` (UTC, ISO 8601) | `updated_at` changes on every document write |
+| `created_at`, `updated_at` | `datetime` (UTC, ISO 8601) | `updated_at` changes on every document write. Node position writes never change it (BD35) |
 | `last_exported_at` | `datetime \| None` | Set by a successful export (B16) |
 | `document_count`, `incomplete_count` | `int` | Computed. `incomplete_count` counts placeholders |
 | `has_unsaved_changes` | `bool` | Computed (B16) |
@@ -47,7 +47,9 @@ All paths are prefixed with `/api`. The app error body is `{"detail": {"code": "
 | GET | `/investigations/{iid}/settings` | — | `InvestigationSettingsOut` (BD29) | 200, 404 |
 | PUT | `/investigations/{iid}/settings` | `InvestigationSettingsIn` | `InvestigationSettingsOut` | 200, 404, 422 (including `indistinct_styles`) |
 | DELETE | `/investigations/{iid}/settings` | — | `InvestigationSettingsOut` (defaults) | 200, 404 |
-| GET | `/investigations/{iid}/graph` | — | `GraphOut` ([graph-output.md](graph-output.md)) | 200, 404 |
+| GET | `/investigations/{iid}/graph` | — | `GraphOut` ([graph-output.md](graph-output.md)), with saved node positions (4.5) | 200, 404 |
+| PUT | `/investigations/{iid}/layout` | `LayoutIn` (BD36): replaces every saved position | — | 204, 404, 422 |
+| PATCH | `/investigations/{iid}/layout` | `LayoutIn` (BD36): adds or updates the listed positions | — | 204, 404, 422 |
 | GET | `/investigations/{iid}/export.csv` | — | `text/csv` attachment ([csv-save-load.md](csv-save-load.md)) | 200, 404 |
 | POST | `/investigations/import?dry_run=` | multipart `file` | dry run: `ImportReport`. Otherwise: `{investigation, report}` | 200 (dry run), 201, 413, 422 (including `not_a_txnweave_file`, BD34) |
 
@@ -56,7 +58,7 @@ All paths are prefixed with `/api`. The app error body is `{"detail": {"code": "
 ### 1. Investigations
 1.1 `POST /investigations` creates an empty investigation. This is "New investigation".
 1.2 `GET /investigations` lists investigations, newest `updated_at` first. "Resume last session" uses the first item, and is shown only when the list is non-empty. The frontend calls this on every app open and reload, because nothing about the session is stored in the browser (D34).
-1.3 Deleting an investigation cascades to all its documents.
+1.3 Deleting an investigation cascades to all its documents and saved node positions (BD35).
 1.4 Retention follows BD7 ([persistence.md](persistence.md)). The frontend calls `DELETE /investigations/{old_id}` after New or Load when the old investigation was exported or the user chose Discard.
 1.5 Rename follows BD32.
 1.6 The user can also delete the active investigation explicitly (D29). The cascade in 1.3 removes its documents and its settings row (BD30).
@@ -67,13 +69,15 @@ All paths are prefixed with `/api`. The app error body is `{"detail": {"code": "
   - For a Transaction, "the same key" means an equal full key tuple (BD1). Same number and date with a different store, or a blank register vs `"003"`, is **not** a duplicate.
   - Matching a placeholder is never a conflict. It is how promotion works (3.8).
 2.3 PUT replaces the whole document. The `type` can't change (422). The key can change, including a Transaction's date, store or register. References that no longer match fall back to placeholders automatically (B4).
-2.4 DELETE of a saved document returns 204. References to it re-resolve on the next read: to another candidate, to a placeholder, or to an ambiguous set.
+2.4 DELETE of a saved document returns 204 and deletes its saved node position (8.5). References to it re-resolve on the next read: to another candidate, to a placeholder, or to an ambiguous set.
 2.5 PUT or DELETE on a placeholder ID returns 409 `placeholder_not_editable`. Placeholders become real only through a POST.
 2.6 Every successful write updates `documents.updated_at` and `investigations.updated_at`, and commits immediately (B2).
 2.7 A Misc node with no references is valid and appears unconnected.
 2.8 A document may reference itself indirectly, for example a Transaction paid with gift card X where X's activation is that same Transaction. Both edges are produced.
 
 2.11 Changing importance (PUT or the BD28 PATCH) is a document write. It follows 2.6 (updates `updated_at` and commits immediately).
+
+2.12 A POST or PUT that promotes a placeholder moves the placeholder's saved position to the saved document (BD37, 8.6). This step never makes the document write fail.
 
 (2.9 and 2.10, amount and store validation, are in [data-model.md](data-model.md).)
 
@@ -143,4 +147,4 @@ Its key tuple is `("00482913", "2026-03-14", "042", "")`.
 - [ ] Settings: GET on a fresh investigation returns the defaults with `is_default: true`. PUT then GET round-trips. DELETE returns the defaults.
 
 ## Course requirements
-Traces: FR-01, FR-03 to FR-07, FR-09, FR-11, FR-12, FR-13, FR-14 (full map in [../project/traceability.md](../project/traceability.md)). Section 6, B15 and BD8 have no FR behind them; they are listed as untraced. FR-23, FR-24 and FR-26 wait for the IAM design (Future, P1).
+Traces: FR-01, FR-03 to FR-07, FR-09, FR-10, FR-11, FR-12, FR-13, FR-14 (full map in [../project/traceability.md](../project/traceability.md)). Section 6, B15 and BD8 have no FR behind them; they are listed as untraced. FR-23, FR-24 and FR-26 wait for the IAM design (Future, P1).

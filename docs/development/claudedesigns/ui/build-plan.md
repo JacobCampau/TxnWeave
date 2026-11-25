@@ -1,12 +1,14 @@
 # UI: Build Plan
 
-- **Status:** Agreed (from `page-and-ui-layout.md` v2, "Implementation guidance"). Updated 2026-11-17 (user decisions): steps tagged by wave (P1), and new steps for rename and delete (D29, D30), the settings page (D26 to D28), importance (D31, D32) and document search (D33). Updated 2026-11-23: steps 8, 8a and 10 follow the activity diagrams (D34 to D37, UI-30 to UI-35).
+- **Status:** Agreed (from `page-and-ui-layout.md` v2, "Implementation guidance"). Updated 2026-11-17 (user decisions): steps tagged by wave (P1), and new steps for rename and delete (D29, D30), the settings page (D26 to D28), importance (D31, D32) and document search (D33). Updated 2026-11-23: steps 8, 8a and 10 follow the activity diagrams (D34 to D37, UI-30 to UI-35). Updated 2026-11-24: `@types/cytoscape` removed from the dependencies (`cytoscape` ≥3.35 ships its own types). Updated 2026-11-24: step 14, saved node positions (D8, D38, UI-36 to UI-38); step 10 now restores saved positions after Export (D36).
 - **Scope:** Frontend dependencies to add and the suggested order of small, reviewable steps for building the UI across all UI feature docs.
 - **Master plan:** [../master-plan.md](../master-plan.md)
 - **Related:** [color-system.md](color-system.md), [app-shell.md](app-shell.md), [investigation-page.md](investigation-page.md), [documents-page.md](documents-page.md), [settings-page.md](settings-page.md), [../backend/build-plan.md](../backend/build-plan.md)
 
 ## Dependencies to add
-`react-router-dom`, `cytoscape`, `@types/cytoscape`.
+`react-router-dom`, `cytoscape` (≥3.35).
+
+Don't add `@types/cytoscape`. `cytoscape` 3.35 ships its own TypeScript definitions (`index.d.ts`, the `"types"` field in its `package.json`), so the separate package is redundant and can conflict with them.
 
 ## Where code lives
 Components go in `apps/web/src/components/` unless another path is given. Pages are in `src/pages/`, graph config in `src/graph/`, styles in `src/styles/`. `src/styles/palette.ts` (new) + `global.css` are the only places hex colors may appear. Each UI doc lists its own components; `EdgeEditor.tsx` is removed (D2).
@@ -26,11 +28,12 @@ Each step is tagged with its wave (P1) and the requirements it serves.
 | 8 | Wave 1 | StartDialog and the start flow (D34: shown on every open, Resume row UI-30, land on `/`), Save/Load with the CSV load checks (D35, UI-31), ConfirmDialog, toasts, the error banner and LoadReportDialog ("Load documents" / "Cancel", UI-17), wired to the backend | FR-01, FR-11, FR-18 (also FR-19 early) |
 | 8a | Wave 1 | Documents page diagram details: Save disabled with no changes (UI-34), delete details (UI-35) | FR-07, FR-12 |
 | 9 | Wave 1 | SettingsPage shell (D26) with **Delete investigation** (D29, UI-24) | FR-01 |
-| 10 | Wave 2 | ExportDialog with the live orientation preview and position restore (D36, UI-32), and the Legend checkbox and `GraphLegend` overlay (D37, UI-33) | FR-17, FR-21, UC09 |
+| 10 | Wave 2 | ExportDialog with the live orientation preview, no dragging while open, and position restore after both Export and Cancel (D36, UI-32), and the Legend checkbox and `GraphLegend` overlay (D37, UI-33) | FR-17, FR-21, UC09 |
 | 11 | Wave 2 | Importance: the PropertyPanel checkbox (D31, UI-26), the form checkbox and list badge (D32, UI-27), and the important node and edge styles | FR-14, FR-15, UC06, UC07 |
 | 12 | Wave 2 | Document search: `documentSearch.ts`, the search box, the status and Important-only filters, date sort rules (D33, UI-28) | FR-16 |
 | 13 | Wave 2 | Appearance: AppearanceTable, StylePreview, Save and Reset (D27, D28, UI-21 to UI-23). `buildStylesheet` and the legend read the settings (UI-29) | FR-13, UC08 |
-| — | Future | IAM user menu (FR-23), FR-25 / UC10 gift card history view, FR-27, and open follow-ups F7, F9 (NQ-8), S-1 | — |
+| 14 | Wave 2 | Saved node positions, after backend step 13: (a) `position?: {x, y}` on graph node types, `putLayout` / `patchLayout` in `graphApi.ts`, and applying saved positions on load with the first-open full layout and `PUT` (UI-38 steps 1, 2, 4, 5). (b) The drag-save batch (UI-36). (c) `src/graph/placement.ts` for new nodes and the `PATCH` (D38, UI-38 step 3). (d) The Re-layout confirm and `PUT` (UI-37) | FR-10, FR-18 (weak) |
+| — | Future | IAM user menu (FR-23), FR-25 / UC10 gift card history view, FR-27, open follow-ups F7, F9 (NQ-8), S-1, and F22 (positions in the CSV) | — |
 
 ## Acceptance criteria
 - [ ] Every Wave 1 step is complete before the assignment's Wave 1 milestone, and each Wave 2 step has at least been started (P1).

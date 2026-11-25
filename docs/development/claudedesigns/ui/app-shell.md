@@ -1,13 +1,13 @@
 # UI: App Shell, Start Flow and Shared Feedback
 
-- **Status:** Agreed (from `page-and-ui-layout.md` v2). Updated 2026-11-17 (user decisions): Settings tab and route (D26), Rename on the TopBar (D30, UI-25). Updated 2026-11-23 (user decisions) to follow the activity diagram `docs/development/drawioactivitydiagrams/Starting An Investigation.drawio`: start flow (D34, UI-30), CSV load checks (D35, UI-31), UI-1 and UI-17 revised.
+- **Status:** Agreed (from `page-and-ui-layout.md` v2). Updated 2026-11-17 (user decisions): Settings tab and route (D26), Rename on the TopBar (D30, UI-25). Updated 2026-11-23 (user decisions) to follow the activity diagram `docs/development/drawioactivitydiagrams/Starting An Investigation.drawio`: start flow (D34, UI-30), CSV load checks (D35, UI-31), UI-1 and UI-17 revised. Updated 2026-11-24: CSV-layout non-goal now points to csv-save-load 5.10 (wording only).
 - **Scope:** Everything around the two pages: routes, the `App.tsx` shell and active-investigation state, the TopBar (wordmark, tabs, investigation name, autosave status, Load, Save, user-menu slot), the StartDialog gate, the Save first / Discard / Cancel prompt, CSV load with LoadReportDialog, the API error banner and toasts, keyboard access, and the minimum width rule.
 - **Master plan:** [../master-plan.md](../master-plan.md)
 - **Related:** [investigation-page.md](investigation-page.md), [documents-page.md](documents-page.md), [color-system.md](color-system.md) (top bar, banner, toast, dialog and focus-ring colors), [../backend/api.md](../backend/api.md) (investigation endpoints, resume, retention), [../backend/csv-save-load.md](../backend/csv-save-load.md) (export, dry-run import, `ImportReport`)
 
 ## Non-goals
 - Login/IAM screens (project-wide non-goal in the master plan; the TopBar keeps the reserved user-menu slot, D6).
-- CSV file layout, including the "sheet per node type" issue (deferred to the CSV design; the backend has since chosen a sectioned single CSV, BD9).
+- CSV file layout, including the "sheet per node type" issue (owned by the backend: a sectioned single CSV, BD9, with the full column layout in [../backend/csv-save-load.md](../backend/csv-save-load.md) 5.10).
 - Backend relationship resolution.
 - Where autosave data is stored (since settled by the backend: the server-side database, B2).
 
